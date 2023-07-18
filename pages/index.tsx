@@ -6,33 +6,59 @@ import { useState, ChangeEvent } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 interface IProduct {
+  id: string;
+  product: string;
+}
+
+interface ICategory {
+  id: string;
   category: string;
-  product: string[];
+  products: IProduct[];
 }
 
 export default function Home() {
-  const [list, setList] = useState<IProduct[]>([]);
-  const [editProduct, setEditProduct] = useState<string>("");
+  const [list, setList] = useState<ICategory[]>([]);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [checkedInput, setCheckedInput] = useState<Record<string, boolean>>({});
+  const [productEdited, setProductEdited] = useState<any>("");
+
+  function dec2hex(dec: number) {
+    return dec.toString(16).padStart(2, "0");
+  }
+  function generateId(len: number) {
+    var arr = new Uint8Array((len || 20) / 2);
+    window.crypto.getRandomValues(arr);
+    return Array.from(arr, dec2hex).join("");
+  }
 
   const handleCategories = (product: string, category: string) => {
-    let productsCopy = [...list];
+    let categoriesCopy = [...list];
 
     // Check if category already exists
-    let categoryObj = productsCopy.find((obj) => obj.category === category);
+    let categoryObj = categoriesCopy.find((obj) => obj.category === category);
 
     if (categoryObj) {
       // If category exists, add product to that category
-      categoryObj.product.push(product);
+      categoryObj.products.push({
+        id: generateId(15),
+        product: product,
+      });
     } else {
       // If category doesn't exist, create new category and product array
-      productsCopy.push({
+      categoriesCopy.push({
+        id: generateId(15),
         category: category,
-        product: [product],
+        products: [
+          {
+            id: generateId(15),
+            product: product,
+          },
+        ],
       });
     }
+
     // Update state
-    setList(productsCopy);
+    setList(categoriesCopy);
   };
 
   const {
@@ -50,6 +76,27 @@ export default function Home() {
     },
   });
 
+  const saveEdit = (
+    categoryId: string,
+    productEdited: string,
+    productId: string
+  ) => {
+    const listCopy = [...list];
+    const categoryObj = listCopy.find((obj) => obj.id === categoryId);
+
+    if (categoryObj) {
+      const productObj = categoryObj.products.find(
+        (product) => product.id === productId
+      );
+
+      if (productObj) {
+        productObj.product = productEdited;
+      }
+    }
+    console.log("edition", listCopy);
+    setList(listCopy);
+  };
+
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
@@ -59,20 +106,21 @@ export default function Home() {
           {list.map((item) => (
             <div className="flex flex-col" key={item.category}>
               <h3>{item.category}</h3>
-              {item.product.map((product, i) => {
-                console.log(checkedInput);
+              {item.products.map((product, i) => {
+                // console.log(checkedInput);
                 return (
-                  <div key={product + i} className="flex">
+                  <div key={product.id} className="flex">
                     <label className="flex">
                       <input
-                        id={`${product}${i}`}
+                        id={`${product.product}${i}`}
                         name={`${product}${i}`}
                         type="checkbox"
-                        value={product}
-                        checked={checkedInput[`${product}${i}`] || false}
+                        value={product.product}
+                        checked={
+                          checkedInput[`${product.product}${i}`] || false
+                        }
                         onChange={(e: ChangeEvent<HTMLInputElement>) => {
                           const { checked, id } = e.target;
-                          console.log("id", id);
                           setCheckedInput(
                             (prevState: Record<string, boolean>) => ({
                               ...prevState,
@@ -81,32 +129,42 @@ export default function Home() {
                           );
                         }}
                       />
-                      {editProduct !== product ? (
+                    </label>
+                    <div
+                      className="p-2"
+                      onClick={() => {
+                        setIsEditing(true);
+                        setProductEdited(product.product);
+                      }}
+                      onBlur={() => {
+                        setIsEditing(false);
+                        saveEdit(item.id, productEdited, product.id);
+                      }}>
+                      {!isEditing ? (
                         <p
                           style={{
-                            textDecoration: checkedInput[`${product}${i}`]
+                            textDecoration: checkedInput[
+                              `${product.product}${i}`
+                            ]
                               ? "line-through"
                               : "none",
                           }}>
-                          {product}
+                          {product.product}
                         </p>
                       ) : (
                         <input
+                          id={product.id}
                           className="border-none p-2 bg-transparent text-white"
-                          value={product}
+                          value={productEdited}
+                          name={product.id}
                           type="text"
-                          // onChange={}
+                          onChange={(e) => {
+                            setProductEdited(e.target.value);
+                          }}
+                          // onKeyDown={() => saveEdit(item.id)}
                         />
                       )}
-                    </label>
-                    <button
-                      type="button"
-                      className="w-auto border mx-5 p-1"
-                      onClick={() => {
-                        setEditProduct(product);
-                      }}>
-                      edit
-                    </button>
+                    </div>
                   </div>
                 );
               })}
@@ -118,6 +176,7 @@ export default function Home() {
             type="text"
             placeholder="Enter your prompt..."
             onChange={handleInputChange}
+            // onKeyDown={() => handleSubmit}
           />
         </form>
       </div>

@@ -16,6 +16,17 @@ export default async function POST(req: Request) {
 
   // Ask OpenAI for a streaming completion given the prompt
   const listofCatehgories = [
+    "Beverages",
+    "Snacks",
+    "Deli",
+    "Health Foods/Specialty Diets",
+    "Pet Supplies",
+    "Cleaning Products",
+    "Personal Care",
+    "Baby Products",
+    "Paper Goods",
+    "Household Items",
+    "Pharmacy",
     "Fruits",
     "Produce",
     "Dairy & Eggs",
@@ -41,7 +52,7 @@ export default async function POST(req: Request) {
     stream: true,
     temperature: 0,
     max_tokens: 500,
-    prompt: `Given the following user input delimited in triple quotes, please classify it into one of the following supermarket shopping list categories: Produce, Dairy & Eggs, Meat & Poultry, Seafood, Bakery, Cereal & Breakfast Foods, Pantry Goods, Frozen Foods, Beverages, Snacks, Deli, Health Foods/Specialty Diets, Pet Supplies, Cleaning Products, Personal Care, Baby Products, Paper Goods, Household Items, Pharmacy. If the user input is not a supermarket product say that you didn't find a match for that word.
+    prompt: `Given the following user input delimited in triple quotes, please classify it into one of the following supermarket shopping list categories: ${listofCatehgories}. If the user input is not a supermarket product say that you didn't find a match for that word.
 User Input:
 """${prompt}"""`,
   });
