@@ -6,22 +6,18 @@ interface IProduct {
 }
 interface ProductsProps {
   product: IProduct;
-  saveEdit: (a: string, b: string, c: string) => void;
+  saveProductEdited: (a: string, b: string, c: string) => void;
   categoryId: string;
-  productEdited: string;
-  setProductEdited: (a: string) => void;
 }
 
 export default function Products({
   product,
-  saveEdit,
+  saveProductEdited,
   categoryId,
-  productEdited,
-  setProductEdited,
 }: ProductsProps) {
   const [checkedInput, setCheckedInput] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-
+  const [value, setValue] = useState<string>("");
   return (
     <div className="flex">
       <label className="flex">
@@ -37,14 +33,14 @@ export default function Products({
         />
       </label>
       <div
-        className="p-2"
+        className="p-2 ml-2"
         onClick={() => {
           setIsEditing(true);
-          setProductEdited(product.product);
+          setValue(product.product);
         }}
         onBlur={() => {
           setIsEditing(false);
-          saveEdit(categoryId, productEdited, product.id);
+          saveProductEdited(categoryId, value, product.id);
         }}>
         {!isEditing ? (
           <p
@@ -56,12 +52,12 @@ export default function Products({
         ) : (
           <input
             id={product.id}
-            className="border-none p-2 bg-transparent text-white"
-            value={productEdited}
+            className="border-none p-0 bg-transparent text-white"
+            value={value}
             name={product.id}
             type="text"
             onChange={(e) => {
-              setProductEdited(e.target.value);
+              setValue(e.target.value);
             }}
             // onKeyDown={() => saveEdit(item.id)}
           />

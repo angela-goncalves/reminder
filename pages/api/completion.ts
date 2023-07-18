@@ -50,11 +50,14 @@ export default async function POST(req: Request) {
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     stream: true,
-    temperature: 0,
-    max_tokens: 500,
     prompt: `Given the following user input delimited in triple quotes, please classify it into one of the following supermarket shopping list categories: ${listofCatehgories}. If the user input is not a supermarket product say that you didn't find a match for that word.
 User Input:
 """${prompt}"""`,
+    max_tokens: 200,
+    temperature: 0,
+    top_p: 1,
+    frequency_penalty: 1,
+    presence_penalty: 1,
   });
 
   // Convert the response into a friendly text-stream

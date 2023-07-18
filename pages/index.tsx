@@ -1,8 +1,7 @@
-import Image from "next/image";
 import { useCompletion } from "ai/react";
 import { Inter } from "next/font/google";
 import { useState, ChangeEvent } from "react";
-import Products from "@/Components/Products";
+import Reminders from "@/Components/Reminders";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,16 +9,14 @@ interface IProduct {
   id: string;
   product: string;
 }
-
-interface ICategory {
+interface IReminder {
   id: string;
   category: string;
   products: IProduct[];
 }
 
 export default function Home() {
-  const [list, setList] = useState<ICategory[]>([]);
-  const [productEdited, setProductEdited] = useState<any>("");
+  const [list, setList] = useState<IReminder[]>([]);
 
   function dec2hex(dec: number) {
     return dec.toString(16).padStart(2, "0");
@@ -30,20 +27,16 @@ export default function Home() {
     return Array.from(arr, dec2hex).join("");
   }
 
-  const handleCategories = (product: string, category: string) => {
+  const handleReminders = (product: string, category: string) => {
     let categoriesCopy = [...list];
-
-    // Check if category already exists
     let categoryObj = categoriesCopy.find((obj) => obj.category === category);
 
     if (categoryObj) {
-      // If category exists, add product to that category
       categoryObj.products.push({
         id: generateId(15),
         product: product,
       });
     } else {
-      // If category doesn't exist, create new category and product array
       categoriesCopy.push({
         id: generateId(15),
         category: category,
@@ -55,27 +48,20 @@ export default function Home() {
         ],
       });
     }
-
-    // Update state
+    // // Update state
     setList(categoriesCopy);
   };
 
-  const {
-    completion,
-    handleSubmit,
-    input,
-    handleInputChange,
-    isLoading,
-    setInput,
-  } = useCompletion({
-    api: "/api/completion",
-    onFinish: (product, categories) => {
-      setInput("");
-      handleCategories(product, categories);
-    },
-  });
+  const { handleSubmit, input, handleInputChange, isLoading, setInput } =
+    useCompletion({
+      api: "/api/completion",
+      onFinish: (product, categories) => {
+        setInput("");
+        handleReminders(product, categories);
+      },
+    });
 
-  const saveEdit = (
+  const saveProductEdited = (
     categoryId: string,
     productEdited: string,
     productId: string
@@ -92,7 +78,17 @@ export default function Home() {
         productObj.product = productEdited;
       }
     }
-    console.log("edition", listCopy);
+    setList(listCopy);
+  };
+
+  const saveCategoryEdited = (categoryId: string, newValue: string) => {
+    const listCopy = [...list];
+    const categoryObj = listCopy.find((obj) => obj.id === categoryId);
+
+    if (categoryObj) {
+      categoryObj.category = newValue;
+    }
+
     setList(listCopy);
   };
 
@@ -103,20 +99,14 @@ export default function Home() {
         <p>Current state: {isLoading ? "Generating..." : "Ready"}</p>
         <form onSubmit={handleSubmit}>
           {list.map((item) => (
-            <div className="flex flex-col" key={item.category}>
-              <h3>{item.category}</h3>
-              {item.products.map((product, i) => {
-                return (
-                  <Products
-                    key={product.id}
-                    product={product}
-                    saveEdit={saveEdit}
-                    categoryId={item.id}
-                    productEdited={productEdited}
-                    setProductEdited={setProductEdited}
-                  />
-                );
-              })}
+            <div className="flex flex-col w-max" key={item.id}>
+              <Reminders
+                key={item.id}
+                saveCategoryEdited={saveCategoryEdited}
+                category={item}
+                categoriesId={item.id}
+                saveProductEdited={saveProductEdited}
+              />
             </div>
           ))}
           <input
