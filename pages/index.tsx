@@ -104,7 +104,6 @@ export default function Home() {
                 key={item.id}
                 saveCategoryEdited={saveCategoryEdited}
                 category={item}
-                categoriesId={item.id}
                 saveProductEdited={saveProductEdited}
               />
             </div>

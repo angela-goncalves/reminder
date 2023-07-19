@@ -6,25 +6,23 @@ interface IProduct {
   product: string;
 }
 
-interface ICategory {
+interface IReminder {
   id: string;
   category: string;
   products: IProduct[];
 }
 
-interface CategoryProps {
-  category: ICategory;
+interface ReminderProps {
+  category: IReminder;
   saveCategoryEdited: (a: string, c: string) => void;
-  categoriesId: string;
   saveProductEdited: (a: string, b: string, c: string) => void;
 }
 
 export default function Reminders({
   category,
   saveCategoryEdited,
-  categoriesId,
   saveProductEdited,
-}: CategoryProps) {
+}: ReminderProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [value, setValue] = useState<string>("");
   return (
