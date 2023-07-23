@@ -1,56 +1,62 @@
-import React, { useState } from "react";
-import Products from "./Products";
+import React, { useRef, useState } from "react";
+import Products from "./Product";
+import { Input } from "./UI/input";
 
 interface IProduct {
   id: string;
-  product: string;
+  name: string;
 }
-
 interface IReminder {
   id: string;
-  category: string;
+  categoryName: string;
   products: IProduct[];
 }
-
+interface ISaveProductEdited {
+  categoryId: string;
+  productEdited: string;
+  productId: string;
+}
+interface ISaveCategoryEdited {
+  categoryId: string;
+  categoryEdited: string;
+}
 interface ReminderProps {
   category: IReminder;
-  saveCategoryEdited: (a: string, c: string) => void;
-  saveProductEdited: (a: string, b: string, c: string) => void;
+  saveCategoryEdited: (saveCategoryEditedObj: ISaveCategoryEdited) => void;
+  moveProductToChecked: (productId: string, categoryId: string) => void;
+  saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
 }
 
 export default function Reminders({
   category,
   saveCategoryEdited,
   saveProductEdited,
+  moveProductToChecked,
 }: ReminderProps) {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [value, setValue] = useState<string>("");
+  const [newCategory, setNewCategory] = useState<string>(category.categoryName);
+
   return (
     <div>
-      <div
-        className="p-2 ml-2 w-max"
-        onClick={() => {
-          setIsEditing(true);
-          setValue(category.category);
-        }}
-        onBlur={() => {
-          setIsEditing(false);
-          saveCategoryEdited(category.id, value);
-        }}>
-        {!isEditing ? (
-          <h3>{category.category}</h3>
-        ) : (
-          <input
-            id={category.id}
-            className="border-2 p-2 bg-transparent text-white"
-            value={value}
-            name={category.id}
+      <div className="pl-0 pt-2 w-max ">
+        <label htmlFor={category.categoryName}>
+          <Input
+            id={category.categoryName}
+            className="p-2 bg-transparent border-none text-xl font-bold text-white focus:outline-none"
+            value={newCategory}
+            name={category.categoryName}
             type="text"
             onChange={(e) => {
-              setValue(e.target.value);
+              setNewCategory(e.target.value);
+            }}
+            onBlur={() => {
+              const categroyToSave = {
+                categoryId: category.id,
+                categoryEdited: newCategory,
+              };
+              saveCategoryEdited(categroyToSave);
             }}
           />
-        )}
+        </label>
       </div>
       {category.products.map((product) => {
         return (
@@ -59,6 +65,7 @@ export default function Reminders({
             product={product}
             saveProductEdited={saveProductEdited}
             categoryId={category.id}
+            moveProductToChecked={moveProductToChecked}
           />
         );
       })}

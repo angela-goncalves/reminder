@@ -13,7 +13,6 @@ export const runtime = "edge";
 export default async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
   const { prompt } = await req.json();
-
   // Ask OpenAI for a streaming completion given the prompt
   const listofCatehgories = [
     "Beverages",
