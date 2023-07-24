@@ -4,6 +4,12 @@ import { Checkbox } from "./UI/checkbox";
 interface IProduct {
   id: string;
   name: string;
+  isCompleted: boolean;
+}
+interface IReminder {
+  id: string;
+  categoryName: string;
+  products: IProduct[];
 }
 
 interface ISaveProductEdited {
@@ -12,18 +18,22 @@ interface ISaveProductEdited {
   productId: string;
 }
 
+interface ISetProductToComplete {
+  productId: string;
+  categoryId: string;
+}
 interface ProductsProps {
   categoryId: string;
   product: IProduct;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
-  moveProductToChecked: (productId: string, categoryId: string) => void;
+  setProductToComplete: (productCompleted: ISetProductToComplete) => void;
 }
 
 export default function Product({
   product,
   saveProductEdited,
   categoryId,
-  moveProductToChecked,
+  setProductToComplete,
 }: ProductsProps) {
   const [newProduct, setNewProduct] = useState<string>(product.name);
 
@@ -34,8 +44,14 @@ export default function Product({
           className="rounded-full"
           id={product.id}
           name={product.id}
+          checked={product.isCompleted}
           onCheckedChange={() => {
-            moveProductToChecked(product.id, categoryId);
+            const productComplete = {
+              productId: product.id,
+              categoryId: categoryId,
+            };
+            // setChecked(!checked)
+            setProductToComplete(productComplete);
           }}
         />
       </label>
