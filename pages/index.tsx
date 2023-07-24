@@ -146,7 +146,7 @@ export default function Home() {
     setListReminders(listReminderCopy);
   };
 
-  const productsCompleted = listReminders.filter((category) =>
+  const productsChecked = listReminders.filter((category) =>
     category.products.some((product) => product.isCompleted)
   );
 
@@ -158,7 +158,7 @@ export default function Home() {
       className={`flex w-full min-h-screen flex-col justify-between p-4 ${inter.className}`}>
       <p>Current state: {isLoading ? "Generating..." : "Ready"}</p>
       <div className="flex w-full h-screenH flex-col relative">
-        {productsCompleted.length === 0 ? (
+        {productsChecked.length === 0 ? (
           <></>
         ) : (
           <button
