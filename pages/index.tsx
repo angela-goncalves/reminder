@@ -1,20 +1,16 @@
 import { useCompletion } from "ai/react";
 import { Inter } from "next/font/google";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Reminders from "@/Components/Reminders";
-import {
-  AccordionContent,
-  AccordionItem,
-  Accordion,
-  AccordionTrigger,
-} from "@/Components/UI/accordion";
+import { Skeleton } from "@/Components/UI/skeleton";
+import { Separator } from "@/Components/UI/separator";
 
 const inter = Inter({ subsets: ["latin"] });
 
 interface IProduct {
   id: string;
   name: string;
-  isCompleted: boolean;
+  isChecked: boolean;
 }
 interface IReminder {
   id: string;
@@ -38,7 +34,8 @@ interface ISetProductToComplete {
 
 export default function Home() {
   const [listReminders, setListReminders] = useState<IReminder[]>([]);
-  const [show, setShow] = useState<boolean>(false);
+  const [showNoChecked, setShowNoChecked] = useState<boolean>(false);
+  const [checkedProducts, setCheckedProducts] = useState<IReminder[]>([]);
 
   function dec2hex(dec: number) {
     return dec.toString(16).padStart(2, "0");
@@ -50,27 +47,41 @@ export default function Home() {
   }
 
   const handleReminders = (product: string, category: string) => {
-    let categoriesCopy = [...listReminders];
-    let categoryObj = categoriesCopy.find(
+    const categoriesCopy = [...listReminders];
+    const categoryObj = categoriesCopy.find(
       (obj) => obj.categoryName === category
     );
 
+    const isProductEmpy = categoryObj?.products.find(
+      (item) => item.name === ""
+    );
     if (categoryObj) {
       categoryObj.products.push({
         id: generateId(15),
         name: product,
-        isCompleted: false,
+        isChecked: false,
       });
+      if (!isProductEmpy) {
+        categoryObj.products.push({
+          id: generateId(16),
+          name: "",
+          isChecked: false,
+        });
+      }
     } else {
       categoriesCopy.push({
         id: generateId(15),
         categoryName: category,
-
         products: [
           {
             id: generateId(15),
             name: product,
-            isCompleted: false,
+            isChecked: false,
+          },
+          {
+            id: generateId(16),
+            name: "",
+            isChecked: false,
           },
         ],
       });
@@ -97,22 +108,22 @@ export default function Home() {
 
   const setProductToComplete = (productCategoryIds: ISetProductToComplete) => {
     // Copy current states
-    let categoriesCopy = [...listReminders];
-    let categoryObj = categoriesCopy.find(
+    const categoriesCopy = [...listReminders];
+    console.log("product", productCategoryIds);
+    const categoryObj = categoriesCopy.find(
       (cat) => cat.id === productCategoryIds.categoryId
     );
 
     if (categoryObj) {
-      let productObj = categoryObj.products.find(
+      const productObj = categoryObj.products.find(
         (product) => product.id === productCategoryIds.productId
       );
 
       if (productObj) {
-        productObj.isCompleted = !productObj.isCompleted;
+        productObj.isChecked = !productObj.isChecked;
       }
     }
-
-    setListReminders(categoriesCopy);
+    setCheckedProducts(categoriesCopy);
   };
 
   const saveProductEdited = (objProductToEdited: ISaveProductEdited) => {
@@ -127,6 +138,15 @@ export default function Home() {
       );
 
       if (productObj) {
+        if (objProductToEdited.productEdited === "") {
+          const productIndex = categoryObj.products.findIndex(
+            (product) => product.id === objProductToEdited.productId
+          );
+
+          if (productIndex !== -1) {
+            categoryObj.products.splice(productIndex, 1);
+          }
+        }
         productObj.name = objProductToEdited.productEdited;
       }
     }
@@ -146,75 +166,48 @@ export default function Home() {
     setListReminders(listReminderCopy);
   };
 
-  const productsChecked = listReminders.filter((category) =>
-    category.products.some((product) => product.isCompleted)
-  );
+  const CategoriesAndProducts = showNoChecked ? checkedProducts : listReminders;
 
-  // console.log("productsCompleted", productsCompleted);
-  // console.log("isCompleted", isCompleted);
-  // console.log("show", show);
   return (
     <main
       className={`flex w-full min-h-screen flex-col justify-between p-4 ${inter.className}`}>
       <p>Current state: {isLoading ? "Generating..." : "Ready"}</p>
       <div className="flex w-full h-screenH flex-col relative">
-        {productsChecked.length === 0 ? (
-          <></>
-        ) : (
-          <button
-            onClick={() => {
-              setShow(!show);
-            }}
-            className="underline">
-            {show ? <h3>show less</h3> : <h3>show all</h3>}
-          </button>
-        )}
-        {show
-          ? listReminders.map((reminder) => (
-              <div
-                key={reminder.id}
-                className="flex flex-col divide-gray-00 divide-y-2 divide-y-reverse">
-                <Reminders
-                  show={show}
-                  saveCategoryEdited={saveCategoryEdited}
-                  category={reminder}
-                  setProductToComplete={setProductToComplete}
-                  saveProductEdited={saveProductEdited}
-                />
-                <div></div>
-              </div>
-            ))
-          : listReminders
-              .filter((category) =>
-                category.products.some((product) => !product.isCompleted)
-              )
-              .map((reminder) => (
-                <div
-                  key={reminder.id}
-                  className="flex flex-col divide-gray-00 divide-y-2 divide-y-reverse">
-                  <Reminders
-                    show={show}
-                    saveCategoryEdited={saveCategoryEdited}
-                    category={reminder}
-                    setProductToComplete={setProductToComplete}
-                    saveProductEdited={saveProductEdited}
-                  />
-                  <div></div>
-                </div>
-              ))}
-
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="primary-input" className="flex flex-col">
-            <input
-              className="w-full bg-transparent p-2 text-white focus:outline-none absolute bottom-0"
-              value={input}
-              type="text"
-              id="primary-input"
-              name="primary-input"
-              placeholder="Enter your prompt..."
-              onChange={handleInputChange}
+        <button onClick={() => setShowNoChecked(!showNoChecked)}>
+          {showNoChecked ? <h3>hide</h3> : <h3>show</h3>}
+        </button>
+        {CategoriesAndProducts.map((reminder) => {
+          return (
+            <Reminders
+              key={reminder.id}
+              showNoChecked={showNoChecked}
+              saveCategoryEdited={saveCategoryEdited}
+              category={reminder}
+              setProductToComplete={setProductToComplete}
+              saveProductEdited={saveProductEdited}
             />
-          </label>
+          );
+        })}
+        <form onSubmit={handleSubmit} className="mt-8 absolute bottom-0">
+          {isLoading ? (
+            <div className="flex p-2">
+              <Skeleton className="bg-neutral-600 w-[10px] h-[10px] rounded-full" />
+              <Skeleton className="bg-neutral-600 w-[10px] h-[10px] rounded-full" />
+              <Skeleton className="bg-neutral-600 w-[10px] h-[10px] rounded-full" />
+            </div>
+          ) : (
+            <label htmlFor="primary-input" className="flex flex-col w-full">
+              <input
+                className="w-full bg-transparent p-2 text-white focus:outline-none"
+                value={input}
+                type="text"
+                id="primary-input"
+                name="primary-input"
+                placeholder="Enter your prompt..."
+                onChange={handleInputChange}
+              />
+            </label>
+          )}
         </form>
       </div>
     </main>

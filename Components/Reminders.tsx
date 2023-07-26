@@ -10,7 +10,7 @@ import {
 interface IProduct {
   id: string;
   name: string;
-  isCompleted: boolean;
+  isChecked: boolean;
 }
 interface IReminder {
   id: string;
@@ -35,7 +35,7 @@ interface ReminderProps {
   saveCategoryEdited: (saveCategoryEditedObj: ISaveCategoryEdited) => void;
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
-  show: boolean;
+  showNoChecked: boolean;
 }
 
 export default function Reminders({
@@ -43,7 +43,7 @@ export default function Reminders({
   saveCategoryEdited,
   saveProductEdited,
   setProductToComplete,
-  show,
+  showNoChecked,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
 
@@ -54,9 +54,11 @@ export default function Reminders({
         defaultValue={category.categoryName}
         collapsible
         className="w-full">
-        <AccordionItem value={category.categoryName}>
+        <AccordionItem
+          value={category.categoryName}
+          className="border-neutral-600">
           <div className="pl-0 pt-2 flex w-full justify-between">
-            <label htmlFor={category.categoryName}>
+            <label htmlFor={category.categoryName} className="w-full">
               <Input
                 id={category.categoryName}
                 className="p-2 bg-transparent border-none text-xl font-bold text-white focus:outline-none"
@@ -78,17 +80,31 @@ export default function Reminders({
             <AccordionTrigger></AccordionTrigger>
           </div>
           <AccordionContent>
-            {category.products.map((product) => {
-              return (
-                <Products
-                  key={product.id}
-                  product={product}
-                  saveProductEdited={saveProductEdited}
-                  categoryId={category.id}
-                  setProductToComplete={setProductToComplete}
-                />
-              );
-            })}
+            {showNoChecked
+              ? category.products.map((product, i) => {
+                  return (
+                    <Products
+                      key={`${product.id}${i}`}
+                      product={product}
+                      saveProductEdited={saveProductEdited}
+                      categoryId={category.id}
+                      setProductToComplete={setProductToComplete}
+                    />
+                  );
+                })
+              : category.products
+                  .filter((ele) => !ele.isChecked || ele.name === "")
+                  .map((product) => {
+                    return (
+                      <Products
+                        key={`${product.id}`}
+                        product={product}
+                        saveProductEdited={saveProductEdited}
+                        categoryId={category.id}
+                        setProductToComplete={setProductToComplete}
+                      />
+                    );
+                  })}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

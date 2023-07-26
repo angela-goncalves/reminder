@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Checkbox } from "./UI/checkbox";
+import { Separator } from "./UI/separator";
 
 interface IProduct {
   id: string;
   name: string;
-  isCompleted: boolean;
+  isChecked: boolean;
 }
 interface IReminder {
   id: string;
@@ -44,7 +45,7 @@ export default function Product({
           className="rounded-full"
           id={product.id}
           name={product.id}
-          checked={product.isCompleted}
+          checked={product.isChecked}
           onCheckedChange={() => {
             const productComplete = {
               productId: product.id,
@@ -73,7 +74,18 @@ export default function Product({
             };
             saveProductEdited(productToSave);
           }}
+          onKeyDown={(e) => {
+            if (e.code === "Enter") {
+              const productToSave = {
+                categoryId: categoryId,
+                productEdited: newProduct,
+                productId: product.id,
+              };
+              saveProductEdited(productToSave);
+            }
+          }}
         />
+        <Separator className="w-full mt-2 bg-neutral-600" />
       </label>
     </div>
   );
