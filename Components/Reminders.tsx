@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Products from "./Product";
 import { Input } from "./UI/input";
 import {
@@ -37,6 +37,14 @@ interface ReminderProps {
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   showNoChecked: boolean;
 }
+function dec2hex(dec: number) {
+  return dec.toString(16).padStart(2, "0");
+}
+function generateId(len: number) {
+  var arr = new Uint8Array((len || 20) / 2);
+  window.crypto.getRandomValues(arr);
+  return Array.from(arr, dec2hex).join("");
+}
 
 export default function Reminders({
   category,
@@ -46,6 +54,14 @@ export default function Reminders({
   showNoChecked,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
+
+  const productEmptyObj = {
+    name: "",
+    id: generateId(15),
+    isChecked: false,
+  };
+
+  const isProductEmpy = category.products.find((item) => item.name === "");
 
   return (
     <div>
@@ -83,17 +99,19 @@ export default function Reminders({
             {showNoChecked
               ? category.products.map((product, i) => {
                   return (
-                    <Products
-                      key={`${product.id}${i}`}
-                      product={product}
-                      saveProductEdited={saveProductEdited}
-                      categoryId={category.id}
-                      setProductToComplete={setProductToComplete}
-                    />
+                    <div key={`${product.id}${i}`}>
+                      <Products
+                        product={product}
+                        saveProductEdited={saveProductEdited}
+                        categoryId={category.id}
+                        // products={category.products}
+                        setProductToComplete={setProductToComplete}
+                      />
+                    </div>
                   );
                 })
               : category.products
-                  .filter((ele) => !ele.isChecked || ele.name === "")
+                  .filter((ele) => !ele.isChecked)
                   .map((product) => {
                     return (
                       <Products
@@ -105,6 +123,16 @@ export default function Reminders({
                       />
                     );
                   })}
+
+            {!isProductEmpy && (
+              <Products
+                key={productEmptyObj.id}
+                product={productEmptyObj}
+                saveProductEdited={saveProductEdited}
+                categoryId={category.id}
+                setProductToComplete={setProductToComplete}
+              />
+            )}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

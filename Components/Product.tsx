@@ -7,11 +7,6 @@ interface IProduct {
   name: string;
   isChecked: boolean;
 }
-interface IReminder {
-  id: string;
-  categoryName: string;
-  products: IProduct[];
-}
 
 interface ISaveProductEdited {
   categoryId: string;
@@ -28,6 +23,7 @@ interface ProductsProps {
   product: IProduct;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
+  // products: IProduct[];
 }
 
 export default function Product({
@@ -39,26 +35,30 @@ export default function Product({
   const [newProduct, setNewProduct] = useState<string>(product.name);
 
   return (
-    <div className="flex px-2 py-1 items-center">
+    <div className="flex px-2 py-2 items-center">
       <label htmlFor={product.id}>
-        <Checkbox
-          className="rounded-full"
-          id={product.id}
-          name={product.id}
-          checked={product.isChecked}
-          onCheckedChange={() => {
-            const productComplete = {
-              productId: product.id,
-              categoryId: categoryId,
-            };
-            // setChecked(!checked)
-            setProductToComplete(productComplete);
-          }}
-        />
+        {product.name === "" ? (
+          <div className="w-4 h-4 rounded-full border-dotted border-2 border-neutral-600 "></div>
+        ) : (
+          <Checkbox
+            className="rounded-full"
+            id={product.id}
+            name={product.id}
+            checked={product.isChecked}
+            onCheckedChange={() => {
+              const productComplete = {
+                productId: product.id,
+                categoryId: categoryId,
+              };
+              // setChecked(!checked)
+              setProductToComplete(productComplete);
+            }}
+          />
+        )}
       </label>
       <label htmlFor={product.name} className="w-full p-0 ml-2">
         <input
-          className="pb-1 w-full bg-transparent text-white focus:outline-none"
+          className="w-full bg-transparent text-white focus:outline-none"
           id={product.name}
           name={product.name}
           type="text"
