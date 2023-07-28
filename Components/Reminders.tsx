@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import Products from "./Product";
+import Product from "./Product";
 import { Input } from "./UI/input";
+import { Reorder } from "framer-motion";
+
 import {
   Accordion,
   AccordionContent,
@@ -36,6 +38,7 @@ interface ReminderProps {
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   showNoChecked: boolean;
+  changePosition: (newProductsIndex: any) => void;
 }
 function dec2hex(dec: number) {
   return dec.toString(16).padStart(2, "0");
@@ -52,6 +55,7 @@ export default function Reminders({
   saveProductEdited,
   setProductToComplete,
   showNoChecked,
+  changePosition,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
 
@@ -61,7 +65,12 @@ export default function Reminders({
     isChecked: false,
   };
 
-  const isProductEmpy = category.products.find((item) => item.name === "");
+  // to show just products no checked or all products
+  const productsToShowOrHide = showNoChecked
+    ? category.products.filter((ele) => !ele.isChecked)
+    : category.products;
+
+  const isProductEmpy = category.products.find((item) => item.name === ""); // products[] already have one product with name = ""
 
   return (
     <div>
@@ -93,46 +102,37 @@ export default function Reminders({
                 }}
               />
             </label>
-            <AccordionTrigger></AccordionTrigger>
+            <AccordionTrigger />
           </div>
           <AccordionContent>
-            {showNoChecked
-              ? category.products.map((product, i) => {
-                  return (
-                    <div key={`${product.id}${i}`}>
-                      <Products
-                        product={product}
-                        saveProductEdited={saveProductEdited}
-                        categoryId={category.id}
-                        // products={category.products}
-                        setProductToComplete={setProductToComplete}
-                      />
-                    </div>
-                  );
-                })
-              : category.products
-                  .filter((ele) => !ele.isChecked)
-                  .map((product) => {
-                    return (
-                      <Products
-                        key={`${product.id}`}
-                        product={product}
-                        saveProductEdited={saveProductEdited}
-                        categoryId={category.id}
-                        setProductToComplete={setProductToComplete}
-                      />
-                    );
-                  })}
-
-            {!isProductEmpy && (
-              <Products
-                key={productEmptyObj.id}
-                product={productEmptyObj}
-                saveProductEdited={saveProductEdited}
-                categoryId={category.id}
-                setProductToComplete={setProductToComplete}
-              />
-            )}
+            <Reorder.Group
+              values={category.products}
+              onReorder={(e) => {
+                changePosition({ products: e, categoryId: category.id });
+                console.log("reorden", e);
+              }}>
+              {productsToShowOrHide.map((product) => {
+                return (
+                  <Reorder.Item key={`${product.id}`} value={product}>
+                    <Product
+                      product={product}
+                      saveProductEdited={saveProductEdited}
+                      categoryId={category.id}
+                      setProductToComplete={setProductToComplete}
+                    />
+                  </Reorder.Item>
+                );
+              })}
+              {!isProductEmpy && (
+                <Product
+                  key={productEmptyObj.id}
+                  product={productEmptyObj}
+                  saveProductEdited={saveProductEdited}
+                  categoryId={category.id}
+                  setProductToComplete={setProductToComplete}
+                />
+              )}
+            </Reorder.Group>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

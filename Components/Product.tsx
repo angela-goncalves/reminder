@@ -23,70 +23,67 @@ interface ProductsProps {
   product: IProduct;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
-  // products: IProduct[];
 }
 
-export default function Product({
-  product,
-  saveProductEdited,
-  categoryId,
-  setProductToComplete,
-}: ProductsProps) {
-  const [newProduct, setNewProduct] = useState<string>(product.name);
+const Product = React.forwardRef<HTMLDivElement, ProductsProps>(
+  ({ product, saveProductEdited, categoryId, setProductToComplete }, ref) => {
+    const [newProduct, setNewProduct] = useState<string>(product.name);
 
-  return (
-    <div className="flex px-2 py-2 items-center">
-      <label htmlFor={product.id}>
-        {product.name === "" ? (
-          <div className="w-4 h-4 rounded-full border-dotted border-2 border-neutral-600 "></div>
-        ) : (
-          <Checkbox
-            className="rounded-full"
-            id={product.id}
-            name={product.id}
-            checked={product.isChecked}
-            onCheckedChange={() => {
-              const productComplete = {
-                productId: product.id,
-                categoryId: categoryId,
-              };
-              // setChecked(!checked)
-              setProductToComplete(productComplete);
-            }}
-          />
-        )}
-      </label>
-      <label htmlFor={product.name} className="w-full p-0 ml-2">
-        <input
-          className="w-full bg-transparent text-white focus:outline-none"
-          id={product.name}
-          name={product.name}
-          type="text"
-          value={newProduct}
-          onChange={(e) => {
-            setNewProduct(e.target.value);
-          }}
-          onBlur={() => {
-            const productToSave = {
-              categoryId: categoryId,
-              productEdited: newProduct,
-              productId: product.id,
-            };
-            saveProductEdited(productToSave);
-          }}
-          onKeyDown={(e) => {
-            if (e.code === "Enter") {
-              const productToSave = {
-                categoryId: categoryId,
-                productEdited: newProduct,
-                productId: product.id,
-              };
-              saveProductEdited(productToSave);
-            }
-          }}
-        />
-        <Separator className="w-full mt-2 bg-neutral-600" />
-      </label>
-    </div>
-  );
-}
+    return (
+      <div className="flex px-2 py-2 items-center" ref={ref}>
+        <label htmlFor={product.id}>
+          {product.name === "" ? (
+            <div className="w-4 h-4 rounded-full border-dotted border-2 border-neutral-600 "></div>
+          ) : (
+            <Checkbox
+              className="rounded-full"
+              id={product.id}
+              name={product.id}
+              checked={product.isChecked}
+              onCheckedChange={() => {
+                setProductToComplete({
+                  productId: product.id,
+                  categoryId: categoryId,
+                });
+              }}
+            />
+          )}
+        </label>
+        <div className="w-full flex flex-col p-0 ml-2">
+          <div className="w-full flex items-center">
+            <label htmlFor={product.name} className="w-full">
+              <input
+                className="bg-transparent text-white focus:outline-none"
+                id={product.name}
+                name={product.name}
+                type="text"
+                value={newProduct}
+                onChange={(e) => {
+                  setNewProduct(e.target.value);
+                }}
+                onBlur={() => {
+                  saveProductEdited({
+                    categoryId: categoryId,
+                    productEdited: newProduct,
+                    productId: product.id,
+                  });
+                }}
+                onKeyDown={(e) => {
+                  if (e.code === "Enter") {
+                    saveProductEdited({
+                      categoryId: categoryId,
+                      productEdited: newProduct,
+                      productId: product.id,
+                    });
+                  }
+                }}
+              />
+            </label>
+          </div>
+          <Separator className="w-full mt-2 bg-neutral-600" />
+        </div>
+      </div>
+    );
+  }
+);
+export default Product;

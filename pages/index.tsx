@@ -83,7 +83,6 @@ export default function Home() {
         ],
       });
     }
-    // Update state
     setListReminders(categoriesCopy);
   };
 
@@ -104,7 +103,6 @@ export default function Home() {
   });
 
   const setProductToComplete = (productCategoryIds: ISetProductToComplete) => {
-    // Copy current states
     const categoriesCopy = [...listReminders];
     const categoryObj = categoriesCopy.find(
       (cat) => cat.id === productCategoryIds.categoryId
@@ -114,7 +112,6 @@ export default function Home() {
       const productObj = categoryObj.products.find(
         (product) => product.id === productCategoryIds.productId
       );
-
       if (productObj) {
         productObj.isChecked = !productObj.isChecked;
       }
@@ -168,13 +165,24 @@ export default function Home() {
 
     setListReminders(listReminderCopy);
   };
+
+  const changePosition = (newProductsIndex: any) => {
+    const categoryObj = listReminders.find(
+      (obj) => obj.id === newProductsIndex.categoryId
+    );
+    const newListReminders = listReminders.map((item) => {
+      if (item.id === categoryObj?.id) {
+        return { ...item, products: newProductsIndex.products };
+      }
+      return item;
+    });
+    setListReminders(newListReminders);
+  };
+
   const filterCheckedAndEmptyProduct = listReminders.filter((category) => {
-    // Get all non-empty products
     let nonEmptyProducts = category.products.filter(
       (product) => product.name !== ""
     );
-
-    // If all non-empty products are checked or there's no non-empty product, filter out the category
     return (
       nonEmptyProducts.length === 0 ||
       nonEmptyProducts.some((product) => !product.isChecked)
@@ -182,6 +190,7 @@ export default function Home() {
   });
 
   const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
+
   return (
     <main
       className={`flex w-full min-h-screen flex-col justify-between p-4 ${inter.className}`}>
@@ -194,7 +203,6 @@ export default function Home() {
           className="underline">
           {show ? <h3>hide</h3> : <h3>show</h3>}
         </button>
-        {/* filtrar por si ya no quedan productos !== "" */}
         {renderIfShow.map((reminder) => (
           <div
             key={reminder.id}
@@ -205,6 +213,7 @@ export default function Home() {
               category={reminder}
               setProductToComplete={setProductToComplete}
               saveProductEdited={saveProductEdited}
+              changePosition={changePosition}
             />
             <div></div>
           </div>
