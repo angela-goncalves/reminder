@@ -5,6 +5,7 @@ import Reminders from "@/Components/Reminders";
 import { Button } from "@/Components/UI/button";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
+import { Input } from "@/Components/UI/input";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -195,15 +196,15 @@ export default function Home() {
     );
   });
 
-  let renderIfShow: IReminder[] = filterCheckedAndEmptyProduct;
-
+  const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
   return (
     <main
-      className={`flex w-full min-h-screen flex-col justify-between p-4 ${inter.className}`}>
+      className={`flex w-full min-h-screen flex-col justify-between p-8 ${inter.className}`}>
       {!darkMode && (
         <Button
           variant="outline"
           size="icon"
+          className="self-end"
           onClick={() => {
             setTheme("light");
             setDarkMode(true);
@@ -223,48 +224,29 @@ export default function Home() {
         </Button>
       )}
       <div className="flex w-full h-screenH flex-col relative">
-        {show && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setShow(false);
-              renderIfShow = listReminders;
-            }}
-            className="underline">
-            <h3>show</h3>
-          </Button>
-        )}
-        {!show && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setShow(true);
-              renderIfShow = filterCheckedAndEmptyProduct;
-            }}
-            className="underline">
-            <h3>hide</h3>
-          </Button>
-        )}
+        <button
+          onClick={() => {
+            setShow(!show);
+          }}
+          className="underline">
+          {show ? <h3>hide</h3> : <h3>show</h3>}
+        </button>
         {renderIfShow.map((reminder) => (
-          <div
+          <Reminders
             key={reminder.id}
-            className="flex flex-col divide-gray-00 divide-y-2 divide-y-reverse">
-            <Reminders
-              showNoChecked={show}
-              saveCategoryEdited={saveCategoryEdited}
-              category={reminder}
-              setProductToComplete={setProductToComplete}
-              saveProductEdited={saveProductEdited}
-              changePosition={changePosition}
-            />
-            <div></div>
-          </div>
+            showNoChecked={show}
+            saveCategoryEdited={saveCategoryEdited}
+            category={reminder}
+            setProductToComplete={setProductToComplete}
+            saveProductEdited={saveProductEdited}
+            changePosition={changePosition}
+          />
         ))}
 
         <form onSubmit={handleSubmit}>
           <label htmlFor="primary-input" className="flex flex-col">
-            <input
-              className="w-full bg-transparent p-2 text-white focus:outline-none absolute bottom-0"
+            <Input
+              className="w-full bg-transparent p-6 text-white focus:outline-none absolute bottom-0"
               value={input}
               type="text"
               id="primary-input"

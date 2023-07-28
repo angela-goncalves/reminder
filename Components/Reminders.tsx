@@ -67,8 +67,8 @@ export default function Reminders({
 
   // to show just products no checked or all products
   const productsToShowOrHide = showNoChecked
-    ? category.products.filter((ele) => !ele.isChecked)
-    : category.products;
+    ? category.products
+    : category.products.filter((ele) => !ele.isChecked);
 
   const isProductEmpy = category.products.find((item) => item.name === ""); // products[] already have one product with name = ""
 
