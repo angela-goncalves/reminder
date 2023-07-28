@@ -124,13 +124,14 @@ export default function Reminders({
                 );
               })}
               {!isProductEmpy && (
-                <Product
-                  key={productEmptyObj.id}
-                  product={productEmptyObj}
-                  saveProductEdited={saveProductEdited}
-                  categoryId={category.id}
-                  setProductToComplete={setProductToComplete}
-                />
+                <Reorder.Item key={productEmptyObj.id} value={productEmptyObj}>
+                  <Product
+                    product={productEmptyObj}
+                    saveProductEdited={saveProductEdited}
+                    categoryId={category.id}
+                    setProductToComplete={setProductToComplete}
+                  />
+                </Reorder.Item>
               )}
             </Reorder.Group>
           </AccordionContent>

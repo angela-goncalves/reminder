@@ -2,6 +2,9 @@ import { useCompletion } from "ai/react";
 import { Inter } from "next/font/google";
 import { useState } from "react";
 import Reminders from "@/Components/Reminders";
+import { Button } from "@/Components/UI/button";
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { useTheme } from "next-themes";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,6 +36,9 @@ interface ISetProductToComplete {
 export default function Home() {
   const [listReminders, setListReminders] = useState<IReminder[]>([]);
   const [show, setShow] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const { setTheme } = useTheme();
 
   function dec2hex(dec: number) {
     return dec.toString(16).padStart(2, "0");
@@ -189,20 +195,56 @@ export default function Home() {
     );
   });
 
-  const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
+  let renderIfShow: IReminder[] = filterCheckedAndEmptyProduct;
 
   return (
     <main
       className={`flex w-full min-h-screen flex-col justify-between p-4 ${inter.className}`}>
-      <p>Current state: {isLoading ? "Generating..." : "Ready"}</p>
-      <div className="flex w-full h-screenH flex-col relative">
-        <button
+      {!darkMode && (
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => {
-            setShow(!show);
-          }}
-          className="underline">
-          {show ? <h3>hide</h3> : <h3>show</h3>}
-        </button>
+            setTheme("light");
+            setDarkMode(true);
+          }}>
+          <SunIcon className="h-[1.2rem] w-[1.2rem]" />
+        </Button>
+      )}
+      {darkMode && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            setTheme("dark");
+            setDarkMode(false);
+          }}>
+          <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
+        </Button>
+      )}
+      <div className="flex w-full h-screenH flex-col relative">
+        {show && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setShow(false);
+              renderIfShow = listReminders;
+            }}
+            className="underline">
+            <h3>show</h3>
+          </Button>
+        )}
+        {!show && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setShow(true);
+              renderIfShow = filterCheckedAndEmptyProduct;
+            }}
+            className="underline">
+            <h3>hide</h3>
+          </Button>
+        )}
         {renderIfShow.map((reminder) => (
           <div
             key={reminder.id}
@@ -227,7 +269,7 @@ export default function Home() {
               type="text"
               id="primary-input"
               name="primary-input"
-              placeholder="Enter your prompt..."
+              placeholder="What do you want to buy..."
               onChange={handleInputChange}
             />
           </label>

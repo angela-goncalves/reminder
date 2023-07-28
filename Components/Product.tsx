@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Checkbox } from "./UI/checkbox";
 import { Separator } from "./UI/separator";
+import Image from "next/image";
 
 interface IProduct {
   id: string;
@@ -79,6 +80,14 @@ const Product = React.forwardRef<HTMLDivElement, ProductsProps>(
                 }}
               />
             </label>
+            {product.name !== "" && (
+              <Image
+                alt="icon to drag the product"
+                width={25}
+                height={25}
+                src="/dragIcon.svg"
+              />
+            )}
           </div>
           <Separator className="w-full mt-2 bg-neutral-600" />
         </div>
