@@ -38,7 +38,7 @@ const Product = ({
   return (
     <div className="flex px-2 py-2 items-center">
       {product.name === "" ? (
-        <div className="w-4 h-4 rounded-full border-dotted border-2 border-neutral-600 "></div>
+        <div className="w-4 h-4 rounded-full border-dotted border-2"></div>
       ) : (
         <label htmlFor={product.id}>
           <Checkbox
@@ -59,7 +59,7 @@ const Product = ({
         <div className="w-full flex items-center">
           <label htmlFor={product.name} className="w-full">
             <Input
-              className="bg-transparent border-none text-white focus:outline-none"
+              className="bg-transparent border-none focus:outline-none"
               id={product.name}
               name={product.name}
               type="text"
@@ -94,7 +94,7 @@ const Product = ({
             />
           )}
         </div>
-        <Separator className="w-full mt-2 bg-neutral-600" />
+        <Separator className="w-full mt-2" />
       </div>
     </div>
   );
