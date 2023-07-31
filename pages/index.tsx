@@ -247,12 +247,12 @@ export default function Home() {
         <form onSubmit={handleSubmit}>
           <label htmlFor="primary-input">
             <Input
-              className="bg-transparent flex-initial w-full rounded-md p-6 focus:outline-none mt-12"
+              className="bg-transparent flex-initial w-full rounded-md p-6 focus:outline-none mt-6"
               value={input}
               type="text"
               id="primary-input"
               name="primary-input"
-              placeholder="What do you want to buy..."
+              placeholder="I would like to buy..."
               onChange={handleInputChange}
             />
           </label>
