@@ -45,7 +45,8 @@ module.exports = {
         },
       },
       height: {
-        screenH: "calc(100vh - 60px)",
+        screenH: "calc(100vh - 100px)",
+        remindersH: "calc(100vh - 300px)",
       },
       borderRadius: {
         lg: "var(--radius)",

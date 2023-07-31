@@ -198,32 +198,30 @@ export default function Home() {
 
   const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
   return (
-    <main
-      className={`flex w-full min-h-screen flex-col justify-between p-8 ${inter.className}`}>
-      {!darkMode && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="self-end"
-          onClick={() => {
-            setTheme("light");
-            setDarkMode(true);
-          }}>
-          <SunIcon className="h-[1.2rem] w-[1.2rem]" />
-        </Button>
-      )}
-      {darkMode && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => {
-            setTheme("dark");
-            setDarkMode(false);
-          }}>
-          <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
-        </Button>
-      )}
-      <div className="flex w-full h-screenH flex-col relative">
+    <main className={`flex w-full flex-col p-4 ${inter.className}`}>
+      <div className="self-end flex flex-col space-y-2 flex-initial">
+        {!darkMode && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              setTheme("light");
+              setDarkMode(true);
+            }}>
+            <SunIcon className="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+        )}
+        {darkMode && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              setTheme("dark");
+              setDarkMode(false);
+            }}>
+            <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+        )}
         <button
           onClick={() => {
             setShow(!show);
@@ -231,22 +229,25 @@ export default function Home() {
           className="underline">
           {show ? <h3>hide</h3> : <h3>show</h3>}
         </button>
-        {renderIfShow.map((reminder) => (
-          <Reminders
-            key={reminder.id}
-            showNoChecked={show}
-            saveCategoryEdited={saveCategoryEdited}
-            category={reminder}
-            setProductToComplete={setProductToComplete}
-            saveProductEdited={saveProductEdited}
-            changePosition={changePosition}
-          />
-        ))}
-
+      </div>
+      <div className="h-screenH w-full ">
+        <div className="flex w-full flex-auto flex-col">
+          {renderIfShow.map((reminder) => (
+            <Reminders
+              key={reminder.id}
+              showNoChecked={show}
+              saveCategoryEdited={saveCategoryEdited}
+              category={reminder}
+              setProductToComplete={setProductToComplete}
+              saveProductEdited={saveProductEdited}
+              changePosition={changePosition}
+            />
+          ))}
+        </div>
         <form onSubmit={handleSubmit}>
-          <label htmlFor="primary-input" className="flex flex-col">
+          <label htmlFor="primary-input">
             <Input
-              className="w-full bg-transparent p-6 text-white focus:outline-none absolute bottom-0"
+              className="bg-transparent flex-initial w-full p-6 focus:outline-none mt-12"
               value={input}
               type="text"
               id="primary-input"

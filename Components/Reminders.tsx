@@ -79,14 +79,12 @@ export default function Reminders({
         defaultValue={category.categoryName}
         collapsible
         className="w-full">
-        <AccordionItem
-          value={category.categoryName}
-          className="border-neutral-600">
-          <div className="pl-0 pt-2 flex w-full justify-between">
+        <AccordionItem value={category.categoryName}>
+          <div className="pl-0 pt-6 flex w-full justify-between">
             <label htmlFor={category.categoryName} className="w-full">
               <Input
                 id={category.categoryName}
-                className="p-2 bg-transparent border-none text-xl font-bold text-white focus:outline-none"
+                className="p-2 bg-transparent border-none text-xl font-bold focus:outline-none"
                 value={newCategory}
                 name={category.categoryName}
                 type="text"
