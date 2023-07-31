@@ -84,7 +84,7 @@ export default function Reminders({
             <label htmlFor={category.categoryName} className="w-full">
               <Input
                 id={category.categoryName}
-                className="p-2 bg-transparent border-none text-xl font-bold focus:outline-none"
+                className="p-2 bg-transparent border-none text-xl font-bold"
                 value={newCategory}
                 name={category.categoryName}
                 type="text"
@@ -107,7 +107,6 @@ export default function Reminders({
               values={category.products}
               onReorder={(e) => {
                 changePosition({ products: e, categoryId: category.id });
-                console.log("reorden", e);
               }}>
               {productsToShowOrHide.map((product) => {
                 return (

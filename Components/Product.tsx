@@ -41,12 +41,12 @@ const Product = ({
         <div className="w-4 h-4 rounded-full border-dotted border-2"></div>
       ) : (
         <label htmlFor={product.id}>
-          <input
+          <Checkbox
+            className="rounded-full"
             id={product.id}
             name={product.id}
-            type="checkbox"
             checked={product.isChecked}
-            onChange={() => {
+            onCheckedChange={() => {
               setProductToComplete({
                 productId: product.id,
                 categoryId: categoryId,
