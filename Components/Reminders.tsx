@@ -67,8 +67,8 @@ export default function Reminders({
 
   // to show just products no checked or all products
   const productsToShowOrHide = showNoChecked
-    ? category.products.filter((ele) => !ele.isChecked)
-    : category.products;
+    ? category.products
+    : category.products.filter((ele) => !ele.isChecked);
 
   const isProductEmpy = category.products.find((item) => item.name === ""); // products[] already have one product with name = ""
 
@@ -79,14 +79,12 @@ export default function Reminders({
         defaultValue={category.categoryName}
         collapsible
         className="w-full">
-        <AccordionItem
-          value={category.categoryName}
-          className="border-neutral-600">
-          <div className="pl-0 pt-2 flex w-full justify-between">
+        <AccordionItem value={category.categoryName}>
+          <div className="pl-0 pt-6 flex w-full justify-between">
             <label htmlFor={category.categoryName} className="w-full">
               <Input
                 id={category.categoryName}
-                className="p-2 bg-transparent border-none text-xl font-bold text-white focus:outline-none"
+                className="p-2 bg-transparent border-none text-xl font-bold"
                 value={newCategory}
                 name={category.categoryName}
                 type="text"
@@ -109,7 +107,6 @@ export default function Reminders({
               values={category.products}
               onReorder={(e) => {
                 changePosition({ products: e, categoryId: category.id });
-                console.log("reorden", e);
               }}>
               {productsToShowOrHide.map((product) => {
                 return (
@@ -124,13 +121,14 @@ export default function Reminders({
                 );
               })}
               {!isProductEmpy && (
-                <Product
-                  key={productEmptyObj.id}
-                  product={productEmptyObj}
-                  saveProductEdited={saveProductEdited}
-                  categoryId={category.id}
-                  setProductToComplete={setProductToComplete}
-                />
+                <Reorder.Item key={productEmptyObj.id} value={productEmptyObj}>
+                  <Product
+                    product={productEmptyObj}
+                    saveProductEdited={saveProductEdited}
+                    categoryId={category.id}
+                    setProductToComplete={setProductToComplete}
+                  />
+                </Reorder.Item>
               )}
             </Reorder.Group>
           </AccordionContent>
