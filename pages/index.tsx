@@ -246,8 +246,8 @@ export default function Home() {
         </div>
         <form onSubmit={handleSubmit}>
           <label htmlFor="primary-input">
-            <Input
-              className="bg-transparent flex-initial w-full p-6 focus:outline-none mt-12"
+            <input
+              className="bg-transparent flex-initial w-full rounded-md p-6 focus:outline-none mt-12"
               value={input}
               type="text"
               id="primary-input"
