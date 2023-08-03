@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Checkbox } from "./UI/checkbox";
 import { Separator } from "./UI/separator";
 import Image from "next/image";
 import { Input } from "./UI/input";
+import { Reorder, DragControls } from "framer-motion";
+import DragIcon from "./Icon/dragIcon";
 
 interface IProduct {
   id: string;
@@ -25,78 +27,91 @@ interface ProductsProps {
   product: IProduct;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
+  dragControls: DragControls;
+  darkMode: boolean;
+  color: string;
 }
 
-const Product = ({
-  product,
-  saveProductEdited,
-  categoryId,
-  setProductToComplete,
-}: ProductsProps) => {
-  const [newProduct, setNewProduct] = useState<string>(product.name);
+const Product = forwardRef<HTMLDivElement, ProductsProps>(
+  (
+    {
+      product,
+      saveProductEdited,
+      categoryId,
+      setProductToComplete,
+      dragControls,
+      darkMode,
+      color,
+    },
+    ref
+  ) => {
+    const [newProduct, setNewProduct] = useState<string>(product.name);
+    // console.log("remindersFM in Product", product);
 
-  return (
-    <div className="flex px-2 py-2 items-center">
-      {product.name === "" ? (
-        <div className="w-4 h-4 rounded-full border-dotted border-2"></div>
-      ) : (
-        <label htmlFor={product.id}>
-          <Checkbox
-            className="rounded-full"
-            id={product.id}
-            name={product.id}
-            checked={product.isChecked}
-            onCheckedChange={() => {
-              setProductToComplete({
-                productId: product.id,
-                categoryId: categoryId,
-              });
-            }}
-          />
-        </label>
-      )}
-      <div className="w-full flex flex-col p-0 ml-2">
-        <div className="w-full flex items-center">
-          <label htmlFor={product.name} className="w-full">
-            <Input
-              className="bg-transparent border-none focus:outline-none"
-              id={product.name}
-              name={product.name}
-              type="text"
-              value={newProduct}
-              onChange={(e) => {
-                setNewProduct(e.target.value);
-              }}
-              onBlur={() => {
-                saveProductEdited({
-                  categoryId: categoryId,
-                  productEdited: newProduct,
+    return (
+      <div className="flex px-2 py-2 items-center" ref={ref}>
+        {product.name === "" ? (
+          <div className="w-4 h-4 rounded-full border-dotted border-2"></div>
+        ) : (
+          <label htmlFor={product.id}>
+            <Checkbox
+              className="rounded-full"
+              id={product.id}
+              name={product.id}
+              color={color}
+              checked={product.isChecked}
+              onCheckedChange={() => {
+                setProductToComplete({
                   productId: product.id,
+                  categoryId: categoryId,
                 });
               }}
-              onKeyDown={(e) => {
-                if (e.code === "Enter") {
+            />
+          </label>
+        )}
+        <div className="w-full flex flex-col p-0 ml-2">
+          <div className="w-full flex items-center">
+            <label htmlFor={product.name} className="w-full">
+              <Input
+                className="bg-transparent border-none focus:outline-none"
+                id={product.name}
+                name={product.name}
+                type="text"
+                value={newProduct}
+                onChange={(e) => {
+                  setNewProduct(e.target.value);
+                }}
+                onBlur={() => {
                   saveProductEdited({
                     categoryId: categoryId,
                     productEdited: newProduct,
                     productId: product.id,
                   });
-                }
-              }}
-            />
-          </label>
-          {product.name !== "" && (
-            <Image
-              alt="icon to drag the product"
-              width={25}
-              height={25}
-              src="/dragIcon.svg"
-            />
-          )}
+                }}
+                onKeyDown={(e) => {
+                  if (e.code === "Enter") {
+                    saveProductEdited({
+                      categoryId: categoryId,
+                      productEdited: newProduct,
+                      productId: product.id,
+                    });
+                  }
+                }}
+              />
+            </label>
+            {product.name !== "" && (
+              <DragIcon
+                width="20px"
+                height="20px"
+                darkMode={darkMode}
+                onPointerDown={(e) => dragControls.start(e)}
+              />
+            )}
+          </div>
+          <Separator className="w-full mt-2" />
         </div>
-        <Separator className="w-full mt-2" />
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 export default Product;
