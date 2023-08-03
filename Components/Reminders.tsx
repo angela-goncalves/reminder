@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Input } from "./UI/input";
+import { Button } from "./UI/button";
 interface IProduct {
   id: string;
   name: string;
@@ -10,12 +11,6 @@ interface IReminder {
   categoryName: string;
   products: IProduct[];
 }
-// interface IReminder {
-//   category: string;
-//   id: string;
-//   product: string;
-//   isChecked: boolean;
-// }
 interface ISaveCategoryEdited {
   categoryId: string;
   categoryEdited: string;
@@ -24,11 +19,13 @@ interface ISaveCategoryEdited {
 interface ReminderProps {
   category: IReminder;
   saveCategoryEdited: (saveCategoryEditedObj: ISaveCategoryEdited) => void;
+  deleteCategory: (category: string) => void;
 }
 
 export default function Reminders({
   category,
   saveCategoryEdited,
+  deleteCategory,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
 

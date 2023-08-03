@@ -104,7 +104,7 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
                 width="20px"
                 height="20px"
                 darkMode={darkMode}
-                onPointerDown={(e) => dragControls.start(e)}
+                // onPointerDown={(e) => dragControls.start(e)}
               />
             )}
           </div>

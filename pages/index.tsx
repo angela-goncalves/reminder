@@ -87,13 +87,13 @@ export default function Home() {
         name: product,
         isChecked: false,
       });
-      if (!isProductEmpy) {
-        categoryObj.products.push({
-          id: generateId(16),
-          name: "",
-          isChecked: false,
-        });
-      }
+      // if (!isProductEmpy) {
+      //   categoryObj.products.push({
+      //     id: generateId(16),
+      //     name: "",
+      //     isChecked: false,
+      //   });
+      // }
     } else {
       categoriesCopy.push({
         id: generateId(15),
@@ -104,11 +104,11 @@ export default function Home() {
             name: product,
             isChecked: false,
           },
-          {
-            id: generateId(16),
-            name: "",
-            isChecked: false,
-          },
+          // {
+          //   id: generateId(16),
+          //   name: "",
+          //   isChecked: false,
+          // },
         ],
       });
     }
@@ -179,6 +179,7 @@ export default function Home() {
       }
     }
     setListReminders(listCopy);
+    setInput("");
   };
 
   const saveCategoryEdited = (objCategoryToEdit: ISaveCategoryEdited) => {
@@ -207,35 +208,48 @@ export default function Home() {
   const onDragStart = (e: any, productId: string) => {
     e.dataTransfer.setData("productId", productId);
   };
-  const onDrop = (e: React.DragEvent, categoryId: string) => {
+
+  const onDrop = (e: React.DragEvent, categoryId: string, index: number) => {
     e.preventDefault();
     const productId = e.dataTransfer.getData("productId");
 
     // Find the source and destination categories and product
-    let sourceCategory: IReminder | undefined;
-    let destinationCategory = listReminders.find(
-      (category) => category.id === categoryId
-    );
+    let sourceCategoryIndex: number | undefined;
     let product: IProduct | undefined;
 
-    listReminders.forEach((category) => {
-      const foundProduct = category.products.find(
+    listReminders.forEach((category, categoryIndex) => {
+      const foundProductIndex = category.products.findIndex(
         (prod) => prod.id === productId
       );
-      if (foundProduct) {
-        product = foundProduct;
-        sourceCategory = category;
+      if (foundProductIndex !== -1) {
+        product = category.products[foundProductIndex];
+        sourceCategoryIndex = categoryIndex;
       }
     });
 
-    if (sourceCategory && destinationCategory && product) {
+    const destinationCategoryIndex = listReminders.findIndex(
+      (category) => category.id === categoryId
+    );
+
+    if (
+      sourceCategoryIndex !== undefined &&
+      destinationCategoryIndex !== -1 &&
+      product
+    ) {
       // Remove the product from the source category
-      sourceCategory.products = sourceCategory.products.filter(
-        (prod) => prod.id !== productId
+      listReminders[sourceCategoryIndex].products.splice(
+        listReminders[sourceCategoryIndex].products.findIndex(
+          (prod) => prod.id === productId
+        ),
+        1
       );
 
-      // Add the product to the destination category
-      destinationCategory.products.push(product);
+      // Insert the product into the destination category at the specified index
+      listReminders[destinationCategoryIndex].products.splice(
+        index,
+        0,
+        product
+      );
 
       setListReminders([...listReminders]);
     }
@@ -246,7 +260,12 @@ export default function Home() {
   };
 
   const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
-
+  const deleteCategory = (categoryId: string) => {
+    const eraseCategory = listReminders.filter(
+      (category) => category.id !== categoryId
+    );
+    setListReminders(eraseCategory);
+  };
   return (
     <main className={`flex w-full justify-center p-4 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -318,112 +337,85 @@ export default function Home() {
         </div>
         <div className="h-screenH w-full ">
           <div className="flex w-full flex-auto flex-col">
-            {/* <Reorder.Group
-              axis="y"
-              values={listReminders}
-              onReorder={(reorderedList) => {
-                console.log("reorderedList", reorderedList);
-                setListReminders(reorderedList);
-              }}> */}
             <div>
-              {renderIfShow.map((reminder) => {
+              {renderIfShow.map((reminder, index) => {
                 const productsToShowOrHide = show
                   ? reminder.products
                   : reminder.products.filter((ele) => !ele.isChecked);
-                return (
-                  <div
-                    key={reminder.id}
-                    onDrop={(e) => onDrop(e, reminder.id)}
-                    onDragOver={onDragOver}>
-                    <Reminders // Category
-                      saveCategoryEdited={saveCategoryEdited}
-                      category={reminder}
-                    />
-                    {productsToShowOrHide.map((product) => (
-                      <motion.div
-                        key={product.id}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, product.id)}>
-                        <Product
-                          product={product}
-                          dragControls={dragControls}
-                          color={color}
-                          saveProductEdited={saveProductEdited}
-                          categoryId={reminder.id}
-                          darkMode={darkMode}
-                          setProductToComplete={setProductToComplete}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
+                const isProductEmpy = reminder.products.find(
+                  (item) => item.name === ""
                 );
-              })}
-            </div>
-            {/* {renderIfShow.map((reminder, categoryIndex) => {
                 const productEmptyObj = {
                   name: "",
                   id: generateId(15),
                   isChecked: false,
                 };
-                const productsToShowOrHide = show
-                  ? reminder.products
-                  : reminder.products.filter((ele) => !ele.isChecked);
                 return (
-                  <div key={reminder.id}>
-                     
-                    <Accordion
+                  <Accordion
                     key={reminder.id}
                     type="single"
                     defaultValue={reminder.categoryName}
                     collapsible
                     className="w-full">
                     <AccordionItem value={reminder.categoryName}>
-                      <div className="flex">
-                        <Reminders // Category
-                          saveCategoryEdited={saveCategoryEdited}
-                          category={reminder}
-                        />
-                        <AccordionTrigger color={color} />
-                      </div>
-                    <AccordionContent> 
-                
-                    <Reminders // Category
-                      saveCategoryEdited={saveCategoryEdited}
-                      category={reminder}
-                    />
-                    {remindersFM
-                      .filter((item) => item.categoryIndex === categoryIndex)
-                      .map((product) => {
-                        return (
-                          <Product
-                            key={product.id}
-                            product={product}
-                            dragControls={dragControls}
-                            color={color}
-                            saveProductEdited={saveProductEdited}
-                            categoryId={product.originalCategoryId}
-                            darkMode={darkMode}
-                            setProductToComplete={setProductToComplete}
+                      <motion.div
+                        layout
+                        key={reminder.id}
+                        onDrop={(e) => onDrop(e, reminder.id, index)}
+                        onDragOver={onDragOver}>
+                        <div className="flex items-center">
+                          <Reminders // Category
+                            saveCategoryEdited={saveCategoryEdited}
+                            category={reminder}
+                            deleteCategory={deleteCategory}
                           />
-                        );
-                      })}
-                    {!reminder.products.find((item) => item.name === "") && (
-                      <Product
-                        product={productEmptyObj}
-                        color={color}
-                        saveProductEdited={saveProductEdited}
-                        categoryId={reminder.id}
-                        darkMode={darkMode}
-                        setProductToComplete={setProductToComplete}
-                      />
-                    )} 
-                    </AccordionContent>
+                          <AccordionTrigger color={color} />
+                          <Button
+                            variant="ghost"
+                            onClick={() => deleteCategory(reminder.id)}>
+                            x
+                          </Button>
+                        </div>
+                        <AccordionContent>
+                          {productsToShowOrHide.map((product) => {
+                            return (
+                              <div key={product.id}>
+                                <motion.div
+                                  draggable
+                                  onDragStart={(e) =>
+                                    onDragStart(e, product.id)
+                                  }>
+                                  <Product
+                                    product={product}
+                                    dragControls={dragControls}
+                                    color={color}
+                                    saveProductEdited={saveProductEdited}
+                                    categoryId={reminder.id}
+                                    darkMode={darkMode}
+                                    setProductToComplete={setProductToComplete}
+                                  />
+                                </motion.div>
+                              </div>
+                            );
+                          })}
+                          {!isProductEmpy && (
+                            <Product
+                              product={productEmptyObj}
+                              dragControls={dragControls}
+                              color={color}
+                              saveProductEdited={saveProductEdited}
+                              categoryId={reminder.id}
+                              darkMode={darkMode}
+                              setProductToComplete={setProductToComplete}
+                            />
+                          )}
+                        </AccordionContent>
+                      </motion.div>
                     </AccordionItem>
-                  </Accordion> 
-                  </div>
+                  </Accordion>
                 );
-              })}*/}
-            {/* </Reorder.Group> */}
+              })}
+            </div>
           </div>
           <form onSubmit={handleSubmit}>
             <label htmlFor="primary-input">

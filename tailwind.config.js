@@ -48,11 +48,11 @@ module.exports = {
         screenH: "calc(100vh - 100px)",
         remindersH: "calc(100vh - 300px)",
       },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
+      // borderRadius: {
+      //   lg: "var(--radius)",
+      //   md: "calc(var(--radius) - 2px)",
+      //   sm: "calc(var(--radius) - 4px)",
+      // },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
