@@ -29,7 +29,7 @@ interface ProductsProps {
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
   dragControls: DragControls;
   darkMode: boolean;
-  color: string;
+  color: "default" | "pink" | "violet" | "emerald" | "cyan" | "amber";
 }
 
 const Product = forwardRef<HTMLDivElement, ProductsProps>(
@@ -55,6 +55,7 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
         ) : (
           <label htmlFor={product.id}>
             <Checkbox
+              variant={color}
               className="rounded-full"
               id={product.id}
               name={product.id}
@@ -99,14 +100,7 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
                 }}
               />
             </label>
-            {product.name !== "" && (
-              <DragIcon
-                width="20px"
-                height="20px"
-                darkMode={darkMode}
-                // onPointerDown={(e) => dragControls.start(e)}
-              />
-            )}
+            <DragIcon width="20px" height="20px" darkMode={darkMode} />
           </div>
           <Separator className="w-full mt-2" />
         </div>

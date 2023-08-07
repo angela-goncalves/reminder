@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%; */
 
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
@@ -21,6 +21,12 @@
 
     --primary: 0 0% 9%;
     --primary-foreground: 0 0% 98%;
+
+    --pinkCust: 330 81% 60%;
+    --violetCust: 258 90% 66%;
+    --emeraldCust: 142 69% 58%;
+    --cyanCust: 198 93% 60%;
+    --amberCust: 38 92% 50%;
 
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -54,6 +60,12 @@
 
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
+
+    --pinkCust: 330 81% 60%;
+    --violetCust: 258 90% 66%;
+    --emeraldCust: 142 69% 58%;
+    --cyanCust: 198 93% 60%;
+    --amberCust: 38 92% 50%;
 
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;

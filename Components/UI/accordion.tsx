@@ -2,6 +2,33 @@ import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+
+const accordionTriggerVariants = cva(
+  "flex flex-1 items-center justify-between py-4 [&[data-state=open]>svg]:rotate-180",
+  {
+    variants: {
+      variant: {
+        default: "text-secundary",
+        pink: "text-pinkCust",
+        violet: "text-violetCust",
+        emerald: "text-emeraldCust",
+        cyan: "text-cyanCust",
+        amber: "text-amberCust",
+      },
+      // size: {
+      //   default: "px-4 h-8 w-8",
+      //   sm: "h-8 rounded-md px-3 text-xs",
+      //   lg: "h-10 rounded-md px-8",
+      //   icon: "h-9 w-9",
+      // },
+    },
+    defaultVariants: {
+      variant: "default",
+      // size: "default",
+    },
+  }
+);
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -17,22 +44,26 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+export interface AccordionTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>,
+    VariantProps<typeof accordionTriggerVariants> {
+  asChild?: boolean;
+}
+
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => {
+  AccordionTriggerProps
+>(({ className, children, variant, ...props }, ref) => {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         ref={ref}
-        className={cn(
-          "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
-          className
-        )}
+        className={cn(accordionTriggerVariants({ variant, className }))}
         {...props}>
         {children}
         <ChevronDownIcon
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 text${props.color}`}
+          className={`shrink-0 transition-transform duration-200`}
+          // className={cn(ChevronDownIconVariants({ variant, size, className }))}
         />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>

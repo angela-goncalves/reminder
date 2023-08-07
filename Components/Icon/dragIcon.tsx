@@ -17,26 +17,22 @@ export default function DragIcon({
     <svg
       width={width}
       height={height}
-      viewBox="0 0 182 138"
+      viewBox="0 0 168 60"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       onPointerDown={onPointerDown}>
       <path
-        d="M5 54H176.026"
+        d="M5 5L163 5"
         stroke={color}
         strokeWidth="10"
         strokeLinecap="round"
       />
       <path
-        d="M5 83H176.026"
+        d="M5 54L163 55"
         stroke={color}
         strokeWidth="10"
         strokeLinecap="round"
       />
-      <path d="M91 0L121.311 33H60.6891L91 0Z" fill={color} />
-      <path d="M91 0L121.311 33H60.6891L91 0Z" fill={color} />
-      <path d="M91 0L121.311 33H60.6891L91 0Z" fill={color} />
-      <path d="M91 138L60.6891 105H121.311L91 138Z" fill={color} />
     </svg>
   );
 }

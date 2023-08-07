@@ -20,6 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/Components/UI/accordion";
+import { Title } from "@/Components/UI/title";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -65,9 +66,12 @@ function generateId(len: number) {
 
 export default function Home() {
   const [listReminders, setListReminders] = useState<IReminder[]>([]);
-  const [color, setColor] = useState<string>("-pink-500");
+  const [color, setColor] = useState<
+    "pink" | "default" | "violet" | "emerald" | "cyan" | "amber"
+  >("pink");
   const [show, setShow] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [accordionState, setAccordionState] = useState<string>("");
 
   const { setTheme } = useTheme();
   const dragControls = useDragControls();
@@ -87,13 +91,13 @@ export default function Home() {
         name: product,
         isChecked: false,
       });
-      // if (!isProductEmpy) {
-      //   categoryObj.products.push({
-      //     id: generateId(16),
-      //     name: "",
-      //     isChecked: false,
-      //   });
-      // }
+      if (!isProductEmpy) {
+        categoryObj.products.push({
+          id: generateId(16),
+          name: "",
+          isChecked: false,
+        });
+      }
     } else {
       categoriesCopy.push({
         id: generateId(15),
@@ -104,15 +108,23 @@ export default function Home() {
             name: product,
             isChecked: false,
           },
-          // {
-          //   id: generateId(16),
-          //   name: "",
-          //   isChecked: false,
-          // },
+          {
+            id: generateId(16),
+            name: "",
+            isChecked: false,
+          },
         ],
       });
     }
-    setListReminders(categoriesCopy);
+    const sortCategories = categoriesCopy.map((item) => ({
+      ...item,
+      products: item.products.slice().sort((a, b) => {
+        if (a.name === "" && b.name !== "") return 1;
+        if (a.name !== "" && b.name === "") return -1;
+        return 0;
+      }),
+    }));
+    setListReminders(sortCategories);
   };
 
   // SDK
@@ -130,6 +142,7 @@ export default function Home() {
       handleReminders(product, categories);
     },
   });
+
   const setProductToComplete = (productCategoryIds: ISetProductToComplete) => {
     const categoriesCopy = [...listReminders];
     const categoryObj = categoriesCopy.find(
@@ -170,6 +183,16 @@ export default function Home() {
           }
         }
         productObj.name = objProductToEdited.productEdited;
+        const productEmpty = categoryObj.products.find(
+          (item) => item.name === ""
+        );
+        if (!productEmpty) {
+          categoryObj.products.push({
+            id: generateId(15),
+            name: "",
+            isChecked: false,
+          });
+        }
       } else {
         categoryObj.products.push({
           id: objProductToEdited.productId,
@@ -194,16 +217,6 @@ export default function Home() {
 
     setListReminders(listReminderCopy);
   };
-
-  const filterCheckedAndEmptyProduct = listReminders.filter((category) => {
-    let nonEmptyProducts = category.products.filter(
-      (product) => product.name !== ""
-    );
-    return (
-      nonEmptyProducts.length === 0 ||
-      nonEmptyProducts.some((product) => !product.isChecked)
-    );
-  });
 
   const onDragStart = (e: any, productId: string) => {
     e.dataTransfer.setData("productId", productId);
@@ -259,7 +272,24 @@ export default function Home() {
     e.preventDefault();
   };
 
-  const renderIfShow = show ? listReminders : filterCheckedAndEmptyProduct;
+  const filterCheckedAndEmptyProduct = listReminders.filter((category) => {
+    let nonEmptyProducts = category.products.filter(
+      (product) => product.name !== ""
+    );
+    return (
+      nonEmptyProducts.some((product) => !product.isChecked) ||
+      nonEmptyProducts.length === 0
+    );
+  });
+
+  const renderIfShow = show
+    ? listReminders.filter((item) =>
+        item.products.some((ele) => ele.name !== "")
+      )
+    : filterCheckedAndEmptyProduct.filter((item) =>
+        item.products.some((ele) => ele.name !== "")
+      );
+
   const deleteCategory = (categoryId: string) => {
     const eraseCategory = listReminders.filter(
       (category) => category.id !== categoryId
@@ -267,34 +297,33 @@ export default function Home() {
     setListReminders(eraseCategory);
   };
   return (
-    <main className={`flex w-full justify-center p-4 ${inter.className}`}>
+    <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
-        <div className="flex items-baseline self-end">
-          <div className="pr-6">
+        <div className="flex items-center self-end">
+          <div className="pr-2 my-0 pb-0">
             <Button
-              className="rounded-full w-4 h-4 bg-pink-500 p-0 hover:bg-pink-600"
-              onClick={() => setColor("-pink-500")}
+              className="rounded-full w-4 h-4 bg-pinkCust p-0 mx-1 my-0 hover:bg-pink-600"
+              onClick={() => setColor("pink")}
             />
             <Button
-              className="rounded-full w-4 h-4 bg-violet-500 p-0 hover:bg-violet-600"
-              onClick={() => setColor("-violet-500")}
+              className="rounded-full w-4 h-4 bg-cyanCust p-0 mx-1 hover:bg-cyan-600"
+              onClick={() => setColor("cyan")}
             />
             <Button
-              className="rounded-full w-4 h-4 bg-green-500 p-0 hover:bg-green-600"
-              onClick={() => setColor("-green-500")}
+              className="rounded-full w-4 h-4 bg-violetCust p-0 mx-1 hover:bg-violet-600"
+              onClick={() => setColor("violet")}
             />
             <Button
-              className="rounded-full w-4 h-4 bg-cyan-400 p-0 hover:bg-cyan-600"
-              onClick={() => setColor("-cyan-400")}
+              className="rounded-full w-4 h-4 bg-amberCust p-0 mx-1 hover:bg-amber-600"
+              onClick={() => setColor("amber")}
             />
             <Button
-              className="rounded-full w-4 h-4 bg-amber-400 p-0 hover:bg-amber-600"
-              onClick={() => setColor("-amber-400")}
+              className="rounded-full w-4 h-4 bg-emeraldCust p-0 mx-1 hover:bg-emerald-600"
+              onClick={() => setColor("emerald")}
             />
           </div>
           {!darkMode && (
             <Button
-              variant="outline"
               size="icon"
               onClick={() => {
                 setTheme("light");
@@ -305,7 +334,6 @@ export default function Home() {
           )}
           {darkMode && (
             <Button
-              variant="outline"
               size="icon"
               onClick={() => {
                 setTheme("dark");
@@ -315,17 +343,17 @@ export default function Home() {
             </Button>
           )}
         </div>
-        <h3 className={`font-bold text${color} text-3xl`}>Groceries</h3>
+        <Title variant={color}>Groceries</Title>
         <div className="self-end flex flex-col space-y-2 flex-initial">
+          <div>{}</div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="link"
+                  variant={color}
                   onClick={() => {
                     setShow(!show);
-                  }}
-                  className={`underline text${color}`}>
+                  }}>
                   {show ? <h3>hide</h3> : <h3>show</h3>}
                 </Button>
               </TooltipTrigger>
@@ -338,28 +366,26 @@ export default function Home() {
         <div className="h-screenH w-full ">
           <div className="flex w-full flex-auto flex-col">
             <div>
-              {renderIfShow.map((reminder, index) => {
-                const productsToShowOrHide = show
-                  ? reminder.products
-                  : reminder.products.filter((ele) => !ele.isChecked);
-                const isProductEmpy = reminder.products.find(
-                  (item) => item.name === ""
-                );
-                const productEmptyObj = {
-                  name: "",
-                  id: generateId(15),
-                  isChecked: false,
-                };
-                return (
-                  <Accordion
-                    key={reminder.id}
-                    type="single"
-                    defaultValue={reminder.categoryName}
-                    collapsible
-                    className="w-full">
-                    <AccordionItem value={reminder.categoryName}>
+              <Accordion
+                type="single"
+                defaultValue={renderIfShow[0]?.categoryName}
+                value={accordionState}
+                onValueChange={(e) => {
+                  setAccordionState(e);
+                }}
+                collapsible
+                className="w-full">
+                {renderIfShow.map((reminder, index) => {
+                  const productsToShowOrHide = show
+                    ? reminder.products
+                    : reminder.products.filter((ele) => !ele.isChecked);
+                  return (
+                    <AccordionItem
+                      key={reminder.id}
+                      value={reminder.categoryName}>
                       <motion.div
                         layout
+                        drag="y"
                         key={reminder.id}
                         onDrop={(e) => onDrop(e, reminder.id, index)}
                         onDragOver={onDragOver}>
@@ -367,54 +393,42 @@ export default function Home() {
                           <Reminders // Category
                             saveCategoryEdited={saveCategoryEdited}
                             category={reminder}
-                            deleteCategory={deleteCategory}
                           />
-                          <AccordionTrigger color={color} />
+                          <AccordionTrigger variant={color} />
                           <Button
-                            variant="ghost"
-                            onClick={() => deleteCategory(reminder.id)}>
+                            variant={color}
+                            className="text-base"
+                            onClick={() => {
+                              deleteCategory(reminder.id);
+                            }}>
                             x
                           </Button>
                         </div>
-                        <AccordionContent>
+                        <AccordionContent style={{ margin: "20px 0px" }}>
                           {productsToShowOrHide.map((product) => {
                             return (
-                              <div key={product.id}>
-                                <motion.div
-                                  draggable
-                                  onDragStart={(e) =>
-                                    onDragStart(e, product.id)
-                                  }>
-                                  <Product
-                                    product={product}
-                                    dragControls={dragControls}
-                                    color={color}
-                                    saveProductEdited={saveProductEdited}
-                                    categoryId={reminder.id}
-                                    darkMode={darkMode}
-                                    setProductToComplete={setProductToComplete}
-                                  />
-                                </motion.div>
-                              </div>
+                              <motion.div
+                                draggable
+                                key={product.id}
+                                onDragStart={(e) => onDragStart(e, product.id)}>
+                                <Product
+                                  product={product}
+                                  dragControls={dragControls}
+                                  color={color}
+                                  saveProductEdited={saveProductEdited}
+                                  categoryId={reminder.id}
+                                  darkMode={darkMode}
+                                  setProductToComplete={setProductToComplete}
+                                />
+                              </motion.div>
                             );
                           })}
-                          {!isProductEmpy && (
-                            <Product
-                              product={productEmptyObj}
-                              dragControls={dragControls}
-                              color={color}
-                              saveProductEdited={saveProductEdited}
-                              categoryId={reminder.id}
-                              darkMode={darkMode}
-                              setProductToComplete={setProductToComplete}
-                            />
-                          )}
                         </AccordionContent>
                       </motion.div>
                     </AccordionItem>
-                  </Accordion>
-                );
-              })}
+                  );
+                })}
+              </Accordion>
             </div>
           </div>
           <form onSubmit={handleSubmit}>

@@ -19,13 +19,11 @@ interface ISaveCategoryEdited {
 interface ReminderProps {
   category: IReminder;
   saveCategoryEdited: (saveCategoryEditedObj: ISaveCategoryEdited) => void;
-  deleteCategory: (category: string) => void;
 }
 
 export default function Reminders({
   category,
   saveCategoryEdited,
-  deleteCategory,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
 
@@ -42,8 +40,9 @@ export default function Reminders({
             setNewCategory(e.target.value);
           }}
           onKeyDown={(e) => {
-            if (e.code === "Enter") {
+            if (e.code === "Enter" || e.key === "Enter") {
               e.preventDefault();
+              e.stopPropagation();
               saveCategoryEdited({
                 categoryId: category.id,
                 categoryEdited: newCategory,
