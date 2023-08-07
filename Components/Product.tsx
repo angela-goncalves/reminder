@@ -46,7 +46,6 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
     ref
   ) => {
     const [newProduct, setNewProduct] = useState<string>(product.name);
-    // console.log("remindersFM in Product", product);
 
     return (
       <div className="flex px-2 py-2 items-center" ref={ref}>

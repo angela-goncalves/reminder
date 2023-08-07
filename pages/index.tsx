@@ -71,7 +71,7 @@ export default function Home() {
   >("pink");
   const [show, setShow] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [accordionState, setAccordionState] = useState<string>("");
+  const [accordionState, setAccordionState] = useState<string[]>([]);
 
   const { setTheme } = useTheme();
   const dragControls = useDragControls();
@@ -296,6 +296,9 @@ export default function Home() {
     );
     setListReminders(eraseCategory);
   };
+  useEffect(() => {
+    setAccordionState([renderIfShow[0]?.categoryName]);
+  }, [listReminders]);
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -365,71 +368,70 @@ export default function Home() {
         </div>
         <div className="h-screenH w-full ">
           <div className="flex w-full flex-auto flex-col">
-            <div>
-              <Accordion
-                type="single"
-                defaultValue={renderIfShow[0]?.categoryName}
-                value={accordionState}
-                onValueChange={(e) => {
-                  setAccordionState(e);
-                }}
-                collapsible
-                className="w-full">
-                {renderIfShow.map((reminder, index) => {
-                  const productsToShowOrHide = show
-                    ? reminder.products
-                    : reminder.products.filter((ele) => !ele.isChecked);
-                  return (
-                    <AccordionItem
+            <Accordion
+              type="multiple"
+              defaultValue={[renderIfShow[0]?.categoryName]}
+              value={accordionState}
+              onValueChange={(e) => {
+                console.log(e);
+                setAccordionState(e);
+              }}
+              // collapsible
+              className="w-full">
+              {renderIfShow.map((reminder, index) => {
+                const productsToShowOrHide = show
+                  ? reminder.products
+                  : reminder.products.filter((ele) => !ele.isChecked);
+                return (
+                  <AccordionItem
+                    key={reminder.id}
+                    value={reminder.categoryName}>
+                    <motion.div
+                      layout
+                      drag="y"
                       key={reminder.id}
-                      value={reminder.categoryName}>
-                      <motion.div
-                        layout
-                        drag="y"
-                        key={reminder.id}
-                        onDrop={(e) => onDrop(e, reminder.id, index)}
-                        onDragOver={onDragOver}>
-                        <div className="flex items-center">
-                          <Reminders // Category
-                            saveCategoryEdited={saveCategoryEdited}
-                            category={reminder}
-                          />
-                          <AccordionTrigger variant={color} />
-                          <Button
-                            variant={color}
-                            className="text-base"
-                            onClick={() => {
-                              deleteCategory(reminder.id);
-                            }}>
-                            x
-                          </Button>
-                        </div>
-                        <AccordionContent style={{ margin: "20px 0px" }}>
-                          {productsToShowOrHide.map((product) => {
-                            return (
-                              <motion.div
-                                draggable
-                                key={product.id}
-                                onDragStart={(e) => onDragStart(e, product.id)}>
-                                <Product
-                                  product={product}
-                                  dragControls={dragControls}
-                                  color={color}
-                                  saveProductEdited={saveProductEdited}
-                                  categoryId={reminder.id}
-                                  darkMode={darkMode}
-                                  setProductToComplete={setProductToComplete}
-                                />
-                              </motion.div>
-                            );
-                          })}
-                        </AccordionContent>
-                      </motion.div>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </div>
+                      onDrop={(e) => onDrop(e, reminder.id, index)}
+                      onDragOver={onDragOver}>
+                      <div className="flex items-center">
+                        <Reminders // Category
+                          saveCategoryEdited={saveCategoryEdited}
+                          category={reminder}
+                        />
+                        <AccordionTrigger variant={color} />
+                        <Button
+                          variant={color}
+                          className="text-base"
+                          onClick={() => {
+                            deleteCategory(reminder.id);
+                          }}>
+                          x
+                        </Button>
+                      </div>
+                      <AccordionContent style={{ margin: "20px 0px" }}>
+                        {productsToShowOrHide.map((product) => {
+                          return (
+                            <motion.div
+                              draggable
+                              key={product.id}
+                              onDragStart={(e) => onDragStart(e, product.id)}>
+                              <Product
+                                product={product}
+                                dragControls={dragControls}
+                                color={color}
+                                saveProductEdited={saveProductEdited}
+                                categoryId={reminder.id}
+                                darkMode={darkMode}
+                                setProductToComplete={setProductToComplete}
+                              />
+                            </motion.div>
+                          );
+                        })}
+                      </AccordionContent>
+                    </motion.div>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
           </div>
           <form onSubmit={handleSubmit}>
             <label htmlFor="primary-input">
