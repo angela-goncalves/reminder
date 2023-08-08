@@ -125,6 +125,7 @@ export default function Home() {
       }),
     }));
     setListReminders(sortCategories);
+    setAccordionState((prev) => [...prev, category]);
   };
 
   // SDK
@@ -296,9 +297,7 @@ export default function Home() {
     );
     setListReminders(eraseCategory);
   };
-  useEffect(() => {
-    setAccordionState([renderIfShow[0]?.categoryName]);
-  }, [listReminders]);
+
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -370,7 +369,7 @@ export default function Home() {
           <div className="flex w-full flex-auto flex-col">
             <Accordion
               type="multiple"
-              defaultValue={[renderIfShow[0]?.categoryName]}
+              // defaultValue={[renderIfShow[0]?.categoryName]}
               value={accordionState}
               onValueChange={(e) => {
                 console.log(e);

@@ -39,16 +39,12 @@ export default function Reminders({
           onChange={(e) => {
             setNewCategory(e.target.value);
           }}
-          onKeyDown={(e) => {
-            if (e.code === "Enter" || e.key === "Enter") {
-              e.preventDefault();
-              e.stopPropagation();
-              saveCategoryEdited({
-                categoryId: category.id,
-                categoryEdited: newCategory,
-              });
-            }
-          }}
+          onBlur={() =>
+            saveCategoryEdited({
+              categoryId: category.id,
+              categoryEdited: newCategory,
+            })
+          }
         />
       </label>
     </div>
