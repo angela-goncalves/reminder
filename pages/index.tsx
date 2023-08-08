@@ -71,7 +71,7 @@ export default function Home() {
   >("pink");
   const [show, setShow] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [accordionState, setAccordionState] = useState<string[]>([]);
+  const [accordionValue, setAccordionValue] = useState<string[]>([]);
 
   const { setTheme } = useTheme();
   const dragControls = useDragControls();
@@ -81,7 +81,6 @@ export default function Home() {
     const categoryObj = categoriesCopy.find(
       (obj) => obj.categoryName === category
     );
-
     if (categoryObj) {
       const isProductEmpy = categoryObj.products.find(
         (item) => item.name === ""
@@ -97,6 +96,16 @@ export default function Home() {
           name: "",
           isChecked: false,
         });
+      }
+
+      // AccordionValue
+      const productObj = categoryObj.products.find(
+        (item) => item.name === product
+      );
+      if (productObj) {
+        setAccordionValue((prev) => [...prev, category]);
+      } else {
+        setAccordionValue((prev) => [...prev]);
       }
     } else {
       categoriesCopy.push({
@@ -115,6 +124,7 @@ export default function Home() {
           },
         ],
       });
+      setAccordionValue((prev) => [...prev, category]);
     }
     const sortCategories = categoriesCopy.map((item) => ({
       ...item,
@@ -125,7 +135,6 @@ export default function Home() {
       }),
     }));
     setListReminders(sortCategories);
-    setAccordionState((prev) => [...prev, category]);
   };
 
   // SDK
@@ -214,6 +223,7 @@ export default function Home() {
 
     if (categoryObj) {
       categoryObj.categoryName = objCategoryToEdit.categoryEdited;
+      setAccordionValue((prev) => [...prev, objCategoryToEdit.categoryEdited]);
     }
 
     setListReminders(listReminderCopy);
@@ -297,7 +307,9 @@ export default function Home() {
     );
     setListReminders(eraseCategory);
   };
-
+  const filterAccordionValue = accordionValue.filter((value) =>
+    listReminders.some((reminder) => reminder.categoryName === value)
+  );
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -369,13 +381,11 @@ export default function Home() {
           <div className="flex w-full flex-auto flex-col">
             <Accordion
               type="multiple"
-              // defaultValue={[renderIfShow[0]?.categoryName]}
-              value={accordionState}
+              value={filterAccordionValue}
               onValueChange={(e) => {
                 console.log(e);
-                setAccordionState(e);
+                setAccordionValue(e);
               }}
-              // collapsible
               className="w-full">
               {renderIfShow.map((reminder, index) => {
                 const productsToShowOrHide = show
