@@ -77,6 +77,7 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
                 id={product.name}
                 name={product.name}
                 type="text"
+                variant={color}
                 value={newProduct}
                 onChange={(e) => {
                   setNewProduct(e.target.value);

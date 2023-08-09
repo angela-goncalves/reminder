@@ -37,9 +37,9 @@ const Title = ({
   ...props
 }: TitleProps) => {
   return (
-    <h3 className={cn(titleVariants({ variant, size, className }))} {...props}>
+    <h1 className={cn(titleVariants({ variant, size, className }))} {...props}>
       {children}
-    </h3>
+    </h1>
   );
 };
 Title.displayName = "Button";

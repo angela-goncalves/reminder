@@ -19,11 +19,13 @@ interface ISaveCategoryEdited {
 interface ReminderProps {
   category: IReminder;
   saveCategoryEdited: (saveCategoryEditedObj: ISaveCategoryEdited) => void;
+  color: "pink" | "default" | "violet" | "emerald" | "cyan" | "amber";
 }
 
 export default function Reminders({
   category,
   saveCategoryEdited,
+  color,
 }: ReminderProps) {
   const [newCategory, setNewCategory] = useState<string>(category.categoryName);
 
@@ -32,6 +34,7 @@ export default function Reminders({
       <label htmlFor={category.categoryName} className="w-full">
         <Input
           id={category.categoryName}
+          variant={color}
           className="p-2 bg-transparent border-none text-xl font-bold mb-4"
           value={newCategory}
           name={category.categoryName}

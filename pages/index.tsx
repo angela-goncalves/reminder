@@ -21,6 +21,7 @@ import {
   AccordionTrigger,
 } from "@/Components/UI/accordion";
 import { Title } from "@/Components/UI/title";
+import { Separator } from "@radix-ui/react-separator";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -307,9 +308,16 @@ export default function Home() {
     );
     setListReminders(eraseCategory);
   };
+
   const filterAccordionValue = accordionValue.filter((value) =>
     listReminders.some((reminder) => reminder.categoryName === value)
   );
+
+  const chekedAmount = listReminders.reduce(
+    (a, b) => a + b.products.filter((elem) => elem.isChecked).length,
+    0
+  );
+
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -358,24 +366,27 @@ export default function Home() {
           )}
         </div>
         <Title variant={color}>Groceries</Title>
-        <div className="self-end flex flex-col space-y-2 flex-initial">
-          <div>{}</div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={color}
-                  onClick={() => {
-                    setShow(!show);
-                  }}>
-                  {show ? <h3>hide</h3> : <h3>show</h3>}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {show ? <h3>hide checked items</h3> : <h3>show all items</h3>}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="self-end flex flex-col space-y-2 flex-initial w-full">
+          <div className="flex items-center justify-between my-2">
+            <h3 className="text-sm">{chekedAmount} Checked</h3>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={color}
+                    onClick={() => {
+                      setShow(!show);
+                    }}>
+                    {show ? <h3>hide</h3> : <h3>show</h3>}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {show ? <h3>hide checked items</h3> : <h3>show all items</h3>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Separator className="border-[0.5px]" />
         </div>
         <div className="h-screenH w-full ">
           <div className="flex w-full flex-auto flex-col">
@@ -383,7 +394,6 @@ export default function Home() {
               type="multiple"
               value={filterAccordionValue}
               onValueChange={(e) => {
-                console.log(e);
                 setAccordionValue(e);
               }}
               className="w-full">
@@ -405,6 +415,7 @@ export default function Home() {
                         <Reminders // Category
                           saveCategoryEdited={saveCategoryEdited}
                           category={reminder}
+                          color={color}
                         />
                         <AccordionTrigger variant={color} />
                         <Button
@@ -445,8 +456,9 @@ export default function Home() {
           <form onSubmit={handleSubmit}>
             <label htmlFor="primary-input">
               <Input
-                className="bg-transparent flex-initial w-full rounded-md p-6 focus:outline-none mt-6"
+                className="bg-transparent flex-initial w-full rounded-md p-6 border mt-6"
                 value={input}
+                variant={color}
                 type="text"
                 id="primary-input"
                 name="primary-input"

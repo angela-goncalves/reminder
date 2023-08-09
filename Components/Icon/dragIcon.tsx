@@ -12,7 +12,6 @@ export default function DragIcon({
   darkMode,
   onPointerDown,
 }: IDragIcon) {
-  const color = darkMode ? "black" : "white";
   return (
     <svg
       width={width}
@@ -23,13 +22,15 @@ export default function DragIcon({
       onPointerDown={onPointerDown}>
       <path
         d="M5 5L163 5"
-        stroke={color}
+        // stroke={color}
+        className="stroke-primary"
         strokeWidth="10"
         strokeLinecap="round"
       />
       <path
         d="M5 54L163 55"
-        stroke={color}
+        // stroke={color}
+        className="stroke-primary"
         strokeWidth="10"
         strokeLinecap="round"
       />
