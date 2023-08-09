@@ -22,6 +22,7 @@ import {
 } from "@/Components/UI/accordion";
 import { Title } from "@/Components/UI/title";
 import { Separator } from "@radix-ui/react-separator";
+import { Skeleton } from "@/Components/UI/skeleton";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,12 +37,6 @@ interface IReminder {
   products: IProduct[];
 }
 
-// interface IReminder {
-//   category: string;
-//   id: string;
-//   product: string;
-//   isChecked: boolean;
-// }
 interface ISaveProductEdited {
   categoryId: string;
   productEdited: string;
@@ -73,7 +68,7 @@ export default function Home() {
   const [show, setShow] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState(false);
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
-
+  const [inputCustom, setInputCustom] = useState<string>("");
   const { setTheme } = useTheme();
   const dragControls = useDragControls();
 
@@ -149,8 +144,8 @@ export default function Home() {
   } = useCompletion({
     api: "/api/completion",
     onFinish: (product, categories) => {
-      setInput("");
-      handleReminders(product, categories);
+      setInputCustom("");
+      handleReminders(inputCustom, categories);
     },
   });
 
@@ -213,7 +208,7 @@ export default function Home() {
       }
     }
     setListReminders(listCopy);
-    setInput("");
+    setInputCustom("");
   };
 
   const saveCategoryEdited = (objCategoryToEdit: ISaveCategoryEdited) => {
@@ -317,6 +312,20 @@ export default function Home() {
     (a, b) => a + b.products.filter((elem) => elem.isChecked).length,
     0
   );
+
+  const handleChangeCustom = (e: any) => {
+    setInputCustom(e.target.value);
+    const categoriesAndProducts = listReminders.map((item) => {
+      return { category: item.categoryName };
+    });
+    const categories = [
+      { ...categoriesAndProducts, user_input: e.target.value },
+    ];
+    // console.log(categories);
+    const objCategories = JSON.stringify(categories);
+
+    setInput(objCategories);
+  };
 
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
@@ -453,17 +462,24 @@ export default function Home() {
               })}
             </Accordion>
           </div>
+          {isLoading && (
+            <div className="space-y-2 my-6">
+              <Skeleton className="h-8 w-[200px]" />
+              <Skeleton className="h-8 w-[95%]" />
+              <Skeleton className="h-8 w-[95%]" />
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <label htmlFor="primary-input">
               <Input
                 className="bg-transparent flex-initial w-full rounded-md p-6 border mt-6"
-                value={input}
+                value={inputCustom}
                 variant={color}
                 type="text"
                 id="primary-input"
                 name="primary-input"
                 placeholder="I would like to buy..."
-                onChange={handleInputChange}
+                onChange={(e) => handleChangeCustom(e)}
               />
             </label>
           </form>

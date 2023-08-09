@@ -14,7 +14,7 @@ export default async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
   const { prompt } = await req.json();
   // Ask OpenAI for a streaming completion given the prompt
-  const listofCatehgories = [
+  const listOfCategories = [
     "Beverages",
     "Snacks",
     "Deli",
@@ -46,12 +46,11 @@ export default async function POST(req: Request) {
     "Vitamins and Minerals",
     "Fibers",
   ];
+
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     stream: true,
-    prompt: `Given the following user input delimited in triple quotes, please classify it into one of the following supermarket shopping list categories: ${listofCatehgories}. If the user input is not a supermarket product say that you didn't find a match for that word.
-User Input:
-"""${prompt}"""`,
+    prompt: `The array delimited with triple quotes, has 'category' and 'user_input' properties, you need to return the category, based on this instructions: first, classify the 'user_input' into one of the following supermarket shopping list categories: ${listOfCategories}. Second, when the 'category' property is not empty, check if the 'user_input' matches or it is contextualy similar with any category in the array and return that same category.  The array:  """${prompt}"""`,
     max_tokens: 200,
     temperature: 0,
     top_p: 1,
