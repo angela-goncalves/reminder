@@ -1,9 +1,7 @@
 import React, { useState, forwardRef } from "react";
 import { Checkbox } from "./UI/checkbox";
 import { Separator } from "./UI/separator";
-import Image from "next/image";
 import { Input } from "./UI/input";
-import { Reorder, DragControls } from "framer-motion";
 import DragIcon from "./Icon/dragIcon";
 
 interface IProduct {
@@ -27,7 +25,6 @@ interface ProductsProps {
   product: IProduct;
   saveProductEdited: (saveProductEditedObj: ISaveProductEdited) => void;
   setProductToComplete: (productCompleted: ISetProductToComplete) => void;
-  dragControls: DragControls;
   darkMode: boolean;
   color: "default" | "pink" | "violet" | "emerald" | "cyan" | "amber";
 }
@@ -39,7 +36,6 @@ const Product = forwardRef<HTMLDivElement, ProductsProps>(
       saveProductEdited,
       categoryId,
       setProductToComplete,
-      dragControls,
       darkMode,
       color,
     },

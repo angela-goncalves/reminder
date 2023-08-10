@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Input } from "./UI/input";
-import { Button } from "./UI/button";
 interface IProduct {
   id: string;
   name: string;

@@ -1,13 +1,19 @@
 import { useCompletion } from "ai/react";
 import { Inter } from "next/font/google";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Reminders from "@/Components/Reminders";
 import { Button } from "@/Components/UI/button";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import { Input } from "@/Components/UI/input";
-import { Reorder, useDragControls, motion } from "framer-motion";
-import Product from "@/Components/Product";
+import {
+  DragDropContext,
+  Draggable,
+  DraggableLocation,
+  DropResult,
+  Droppable,
+} from "react-beautiful-dnd";
+
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +29,9 @@ import {
 import { Title } from "@/Components/UI/title";
 import { Separator } from "@radix-ui/react-separator";
 import { Skeleton } from "@/Components/UI/skeleton";
+import dynamic from "next/dynamic";
+
+const Product = dynamic(() => import("@/Components/Product"), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -51,13 +60,14 @@ interface ISetProductToComplete {
   categoryId: string;
 }
 
-function dec2hex(dec: number) {
-  return dec.toString(16).padStart(2, "0");
+function dec2num(dec: number) {
+  return (dec % 10).toString();
 }
+
 function generateId(len: number) {
   var arr = new Uint8Array((len || 20) / 2);
   window.crypto.getRandomValues(arr);
-  return Array.from(arr, dec2hex).join("");
+  return Array.from(arr, dec2num).join("");
 }
 
 export default function Home() {
@@ -70,8 +80,8 @@ export default function Home() {
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
   const [inputCustom, setInputCustom] = useState<string>("");
   const { setTheme } = useTheme();
-  const dragControls = useDragControls();
 
+  // HandleSubmit for Vercel SDK
   const handleReminders = (product: string, category: string) => {
     const categoriesCopy = [...listReminders];
     const categoryObj = categoriesCopy.find(
@@ -133,15 +143,8 @@ export default function Home() {
     setListReminders(sortCategories);
   };
 
-  // SDK
-  const {
-    completion,
-    handleSubmit,
-    input,
-    handleInputChange,
-    isLoading,
-    setInput,
-  } = useCompletion({
+  // Vercel SDK
+  const { handleSubmit, isLoading, setInput } = useCompletion({
     api: "/api/completion",
     onFinish: (product, categories) => {
       setInputCustom("");
@@ -225,58 +228,62 @@ export default function Home() {
     setListReminders(listReminderCopy);
   };
 
-  const onDragStart = (e: any, productId: string) => {
-    e.dataTransfer.setData("productId", productId);
-  };
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
 
-  const onDrop = (e: React.DragEvent, categoryId: string, index: number) => {
-    e.preventDefault();
-    const productId = e.dataTransfer.getData("productId");
-
-    // Find the source and destination categories and product
-    let sourceCategoryIndex: number | undefined;
-    let product: IProduct | undefined;
-
-    listReminders.forEach((category, categoryIndex) => {
-      const foundProductIndex = category.products.findIndex(
-        (prod) => prod.id === productId
-      );
-      if (foundProductIndex !== -1) {
-        product = category.products[foundProductIndex];
-        sourceCategoryIndex = categoryIndex;
-      }
-    });
-
-    const destinationCategoryIndex = listReminders.findIndex(
-      (category) => category.id === categoryId
-    );
-
-    if (
-      sourceCategoryIndex !== undefined &&
-      destinationCategoryIndex !== -1 &&
-      product
-    ) {
-      // Remove the product from the source category
-      listReminders[sourceCategoryIndex].products.splice(
-        listReminders[sourceCategoryIndex].products.findIndex(
-          (prod) => prod.id === productId
-        ),
-        1
-      );
-
-      // Insert the product into the destination category at the specified index
-      listReminders[destinationCategoryIndex].products.splice(
-        index,
-        0,
-        product
-      );
-
-      setListReminders([...listReminders]);
+    // Dropped outside the list
+    if (!destination) {
+      return;
     }
+
+    let updatedListReminders = [...listReminders];
+
+    if (source.droppableId === destination.droppableId) {
+      updatedListReminders = reorderProductsWithinCategory(
+        updatedListReminders,
+        source,
+        destination
+      );
+    } else {
+      updatedListReminders = moveProductBetweenCategories(
+        updatedListReminders,
+        source,
+        destination
+      );
+    }
+
+    setListReminders(updatedListReminders);
   };
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
+  const reorderProductsWithinCategory = (
+    list: IReminder[],
+    source: DraggableLocation,
+    destination: DraggableLocation
+  ) => {
+    const category = list.find((cat) => cat.id === source.droppableId);
+    if (category) {
+      const [removedProduct] = category.products.splice(source.index, 1);
+      category.products.splice(destination.index, 0, removedProduct);
+    }
+    return list;
+  };
+
+  const moveProductBetweenCategories = (
+    list: IReminder[],
+    source: DraggableLocation,
+    destination: DraggableLocation
+  ) => {
+    const sourceCategory = list.find((cat) => cat.id === source.droppableId);
+    if (sourceCategory) {
+      const destinationCategory = list.find(
+        (cat) => cat.id === destination.droppableId
+      );
+
+      const [product] = sourceCategory.products.splice(source.index, 1);
+      destinationCategory?.products.splice(destination.index, 0, product);
+    }
+
+    return list;
   };
 
   const filterCheckedAndEmptyProduct = listReminders.filter((category) => {
@@ -321,7 +328,6 @@ export default function Home() {
     const categories = [
       { ...categoriesAndProducts, user_input: e.target.value },
     ];
-    // console.log(categories);
     const objCategories = JSON.stringify(categories);
 
     setInput(objCategories);
@@ -399,27 +405,25 @@ export default function Home() {
         </div>
         <div className="h-screenH w-full ">
           <div className="flex w-full flex-auto flex-col">
-            <Accordion
-              type="multiple"
-              value={filterAccordionValue}
-              onValueChange={(e) => {
-                setAccordionValue(e);
-              }}
-              className="w-full">
-              {renderIfShow.map((reminder, index) => {
-                const productsToShowOrHide = show
-                  ? reminder.products
-                  : reminder.products.filter((ele) => !ele.isChecked);
-                return (
-                  <AccordionItem
-                    key={reminder.id}
-                    value={reminder.categoryName}>
-                    <motion.div
-                      layout
-                      drag="y"
+            <DragDropContext
+              onDragEnd={(result) => {
+                onDragEnd(result);
+              }}>
+              <Accordion
+                type="multiple"
+                value={filterAccordionValue}
+                onValueChange={(e) => {
+                  setAccordionValue(e);
+                }}
+                className="w-full">
+                {renderIfShow.map((reminder) => {
+                  const productsToShowOrHide = show
+                    ? reminder.products
+                    : reminder.products.filter((ele) => !ele.isChecked);
+                  return (
+                    <AccordionItem
                       key={reminder.id}
-                      onDrop={(e) => onDrop(e, reminder.id, index)}
-                      onDragOver={onDragOver}>
+                      value={reminder.categoryName}>
                       <div className="flex items-center">
                         <Reminders // Category
                           saveCategoryEdited={saveCategoryEdited}
@@ -437,30 +441,48 @@ export default function Home() {
                         </Button>
                       </div>
                       <AccordionContent style={{ margin: "20px 0px" }}>
-                        {productsToShowOrHide.map((product) => {
-                          return (
-                            <motion.div
-                              draggable
-                              key={product.id}
-                              onDragStart={(e) => onDragStart(e, product.id)}>
-                              <Product
-                                product={product}
-                                dragControls={dragControls}
-                                color={color}
-                                saveProductEdited={saveProductEdited}
-                                categoryId={reminder.id}
-                                darkMode={darkMode}
-                                setProductToComplete={setProductToComplete}
-                              />
-                            </motion.div>
-                          );
-                        })}
+                        <Droppable droppableId={reminder.id}>
+                          {(droppableProvider) => (
+                            <div
+                              ref={droppableProvider.innerRef}
+                              {...droppableProvider.droppableProps}>
+                              {productsToShowOrHide.map((product, index) => {
+                                return (
+                                  <Draggable
+                                    key={product.id}
+                                    draggableId={product.id}
+                                    index={index}>
+                                    {(draggableProvider) => (
+                                      <div
+                                        ref={draggableProvider.innerRef}
+                                        {...draggableProvider.draggableProps}
+                                        {...draggableProvider.dragHandleProps}>
+                                        <Product
+                                          product={product}
+                                          key={product.id}
+                                          color={color}
+                                          saveProductEdited={saveProductEdited}
+                                          categoryId={reminder.id}
+                                          darkMode={darkMode}
+                                          setProductToComplete={
+                                            setProductToComplete
+                                          }
+                                        />
+                                      </div>
+                                    )}
+                                  </Draggable>
+                                );
+                              })}
+                              {droppableProvider.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
                       </AccordionContent>
-                    </motion.div>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </DragDropContext>
           </div>
           {isLoading && (
             <div className="space-y-2 my-6">
