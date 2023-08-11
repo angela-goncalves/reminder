@@ -400,7 +400,7 @@ export default function Home() {
           </div>
           <Separator className="border-[0.5px]" />
         </div>
-        <div className="h-screenH w-full ">
+        <div className="w-full ">
           <div className="flex w-full flex-auto flex-col">
             <DragDropContext
               onDragEnd={(result) => {

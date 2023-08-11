@@ -50,7 +50,7 @@ export default async function POST(req: Request) {
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     stream: true,
-    prompt: `The array delimited with triple quotes, has 'category' and 'user_input' properties, you need to return the category, based on this instructions: first, classify the 'user_input' into one of the following supermarket shopping list categories: ${listOfCategories}. Second, when the 'category' property is not empty, check if the 'user_input' matches or it is contextualy similar with any category in the array and return that same category.  The array:  """${prompt}"""`,
+    prompt: `You are an expert in supermarket categories, so you need to check on the array delimited with triple quotes, which has "category" and "user_input" properties, and return the category based on this instructions: first, classify the "user_input" into one of this supermarket shopping list categories: ${listOfCategories}. Second, when the "category" property is not empty, check if the "user_input" matches or it is contextualy similar with any category in the array and return that same category.   The array:  """${prompt}"""`,
     max_tokens: 200,
     temperature: 0,
     top_p: 1,
