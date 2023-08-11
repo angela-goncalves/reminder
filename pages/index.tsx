@@ -1,6 +1,6 @@
 import { useCompletion } from "ai/react";
 import { Inter } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Reminders from "@/Components/Reminders";
 import { Button } from "@/Components/UI/button";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
@@ -27,11 +27,9 @@ import {
   AccordionTrigger,
 } from "@/Components/UI/accordion";
 import { Title } from "@/Components/UI/title";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/Components/UI/separator";
 import { Skeleton } from "@/Components/UI/skeleton";
-import dynamic from "next/dynamic";
-
-const Product = dynamic(() => import("@/Components/Product"), { ssr: false });
+import Product from "@/Components/Product";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -79,7 +77,12 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
   const [inputCustom, setInputCustom] = useState<string>("");
+  const [newProduct, setNewProduct] = useState<string>("");
+
   const { setTheme } = useTheme();
+  const productRefs = useRef<(HTMLInputElement | null)[]>(
+    Array(listReminders.length).fill(null)
+  );
 
   // HandleSubmit for Vercel SDK
   const handleReminders = (product: string, category: string) => {
@@ -153,8 +156,8 @@ export default function Home() {
   });
 
   const setProductToComplete = (productCategoryIds: ISetProductToComplete) => {
-    const categoriesCopy = [...listReminders];
-    const categoryObj = categoriesCopy.find(
+    const listCopy = [...listReminders];
+    const categoryObj = listCopy.find(
       (cat) => cat.id === productCategoryIds.categoryId
     );
 
@@ -167,31 +170,31 @@ export default function Home() {
       }
     }
 
-    setListReminders(categoriesCopy);
+    setListReminders(listCopy);
   };
 
-  const saveProductEdited = (objProductToEdited: ISaveProductEdited) => {
+  const saveProductEdited = (objProductEdited: ISaveProductEdited) => {
     const listCopy = [...listReminders];
     const categoryObj = listCopy.find(
-      (obj) => obj.id === objProductToEdited.categoryId
+      (obj) => obj.id === objProductEdited.categoryId
     );
 
     if (categoryObj) {
       const productObj = categoryObj.products.find(
-        (product) => product.id === objProductToEdited.productId
+        (product) => product.id === objProductEdited.productId
       );
 
       if (productObj) {
-        if (objProductToEdited.productEdited === "") {
-          const productIndex = categoryObj.products.findIndex(
-            (product) => product.id === objProductToEdited.productId
-          );
-
+        const productIndex = categoryObj.products.findIndex(
+          (product) => product.id === objProductEdited.productId
+        );
+        if (objProductEdited.productEdited === "" && productObj.name !== "") {
           if (productIndex !== -1) {
             categoryObj.products.splice(productIndex, 1);
           }
         }
-        productObj.name = objProductToEdited.productEdited;
+        productObj.name = objProductEdited.productEdited;
+
         const productEmpty = categoryObj.products.find(
           (item) => item.name === ""
         );
@@ -202,13 +205,11 @@ export default function Home() {
             isChecked: false,
           });
         }
-      } else {
-        categoryObj.products.push({
-          id: objProductToEdited.productId,
-          name: objProductToEdited.productEdited,
-          isChecked: false,
-        });
+        if (categoryObj.products[productIndex + 1]) {
+          productRefs.current[productIndex + 1]?.focus();
+        }
       }
+      setNewProduct("");
     }
     setListReminders(listCopy);
     setInputCustom("");
@@ -290,10 +291,7 @@ export default function Home() {
     let nonEmptyProducts = category.products.filter(
       (product) => product.name !== ""
     );
-    return (
-      nonEmptyProducts.some((product) => !product.isChecked) ||
-      nonEmptyProducts.length === 0
-    );
+    return nonEmptyProducts.some((product) => !product.isChecked);
   });
 
   const renderIfShow = show
@@ -332,7 +330,6 @@ export default function Home() {
 
     setInput(objCategories);
   };
-
   return (
     <main className={`flex w-full justify-center p-4 mb-12 ${inter.className}`}>
       <div className="flex flex-col w-full md:max-w-3xl py-4">
@@ -440,10 +437,11 @@ export default function Home() {
                           x
                         </Button>
                       </div>
-                      <AccordionContent style={{ margin: "20px 0px" }}>
+                      <AccordionContent className="my-5 w-full">
                         <Droppable droppableId={reminder.id}>
                           {(droppableProvider) => (
                             <div
+                              className="w-full"
                               ref={droppableProvider.innerRef}
                               {...droppableProvider.droppableProps}>
                               {productsToShowOrHide.map((product, index) => {
@@ -454,16 +452,19 @@ export default function Home() {
                                     index={index}>
                                     {(draggableProvider) => (
                                       <div
+                                        key={product.id}
                                         ref={draggableProvider.innerRef}
                                         {...draggableProvider.draggableProps}
                                         {...draggableProvider.dragHandleProps}>
                                         <Product
                                           product={product}
                                           key={product.id}
+                                          ref={(el) =>
+                                            (productRefs.current[index] = el)
+                                          }
                                           color={color}
                                           saveProductEdited={saveProductEdited}
                                           categoryId={reminder.id}
-                                          darkMode={darkMode}
                                           setProductToComplete={
                                             setProductToComplete
                                           }

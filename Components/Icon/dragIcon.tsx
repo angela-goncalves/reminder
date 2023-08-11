@@ -2,16 +2,10 @@ import React from "react";
 interface IDragIcon {
   width: string;
   height: string;
-  darkMode: boolean;
   onPointerDown?: (e: any) => void;
 }
 
-export default function DragIcon({
-  width,
-  height,
-  darkMode,
-  onPointerDown,
-}: IDragIcon) {
+export default function DragIcon({ width, height, onPointerDown }: IDragIcon) {
   return (
     <svg
       width={width}
