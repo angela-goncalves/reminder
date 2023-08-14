@@ -77,12 +77,8 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [accordionValue, setAccordionValue] = useState<string[]>([]);
   const [inputCustom, setInputCustom] = useState<string>("");
-  const [newProduct, setNewProduct] = useState<string>("");
 
   const { setTheme } = useTheme();
-  const productRefs = useRef<(HTMLInputElement | null)[]>(
-    Array(listReminders.length).fill(null)
-  );
 
   // HandleSubmit for Vercel SDK
   const handleReminders = (product: string, category: string) => {
@@ -205,11 +201,7 @@ export default function Home() {
             isChecked: false,
           });
         }
-        if (categoryObj.products[productIndex + 1]) {
-          productRefs.current[productIndex + 1]?.focus();
-        }
       }
-      setNewProduct("");
     }
     setListReminders(listCopy);
     setInputCustom("");
@@ -459,9 +451,6 @@ export default function Home() {
                                         <Product
                                           product={product}
                                           key={product.id}
-                                          ref={(el) =>
-                                            (productRefs.current[index] = el)
-                                          }
                                           color={color}
                                           saveProductEdited={saveProductEdited}
                                           categoryId={reminder.id}

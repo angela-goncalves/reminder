@@ -1,7 +1,8 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Checkbox } from "./UI/checkbox";
 import { Separator } from "./UI/separator";
 import DragIcon from "./Icon/dragIcon";
+import { Input } from "./UI/input";
 
 interface IProduct {
   id: string;
@@ -27,70 +28,78 @@ interface ProductsProps {
   color: "default" | "pink" | "violet" | "emerald" | "cyan" | "amber";
 }
 
-const ProductEmpty = forwardRef<HTMLInputElement, ProductsProps>(
-  (
-    { categoryId, product, saveProductEdited, setProductToComplete, color },
-    ref
-  ) => {
-    const [newProduct, setNewProduct] = useState<string>(product.name);
+const Product = ({
+  categoryId,
+  product,
+  saveProductEdited,
+  setProductToComplete,
+  color,
+}: ProductsProps) => {
+  const [newProduct, setNewProduct] = useState<string>(product.name);
+  const productInputRef = useRef<HTMLInputElement>(null);
 
-    return (
-      <div className="flex px-2 py-2 items-center">
-        {product.name === "" ? (
-          <div className="w-[18.5px] h-[18px] rounded-full border-dotted border-2" />
-        ) : (
-          <Checkbox
-            variant={color}
-            className="rounded-full mb-2"
+  useEffect(() => {
+    if (productInputRef.current) {
+      productInputRef.current?.focus();
+    }
+  }, []);
+
+  return (
+    <div className="flex px-2 py-2 items-center">
+      {product.name === "" ? (
+        <div className="w-[18.5px] h-[18px] rounded-full border-dotted border-2" />
+      ) : (
+        <Checkbox
+          variant={color}
+          className="rounded-full mb-2"
+          id={product.id}
+          name={product.id}
+          color={color}
+          checked={product.isChecked}
+          onCheckedChange={() => {
+            setProductToComplete({
+              productId: product.id,
+              categoryId: categoryId,
+            });
+          }}
+        />
+      )}
+      <div className="w-full flex flex-col p-0 mx-2">
+        <div className="w-full">
+          <Input
+            className="w-full bg-transparent border-none focus:outline-none"
             id={product.id}
             name={product.id}
-            color={color}
-            checked={product.isChecked}
-            onCheckedChange={() => {
-              setProductToComplete({
-                productId: product.id,
+            variant={color}
+            type="text"
+            ref={productInputRef}
+            value={newProduct}
+            onChange={(e) => {
+              setNewProduct(e.target.value);
+            }}
+            onBlur={() => {
+              saveProductEdited({
                 categoryId: categoryId,
+                productEdited: newProduct,
+                productId: product.id,
               });
             }}
-          />
-        )}
-        <div className="w-full flex flex-col p-0 mx-2">
-          <div className="w-full">
-            <input
-              className="w-full bg-transparent border-none focus:outline-none"
-              id={product.id}
-              name={product.id}
-              // variant={color}
-              type="text"
-              ref={ref}
-              value={newProduct}
-              onChange={(e) => {
-                setNewProduct(e.target.value);
-              }}
-              onBlur={() => {
+            onKeyDown={(e) => {
+              if (e.code === "Enter") {
                 saveProductEdited({
                   categoryId: categoryId,
                   productEdited: newProduct,
                   productId: product.id,
                 });
-              }}
-              onKeyDown={(e) => {
-                if (e.code === "Enter") {
-                  saveProductEdited({
-                    categoryId: categoryId,
-                    productEdited: newProduct,
-                    productId: product.id,
-                  });
-                }
-              }}
-            />
-            <Separator className="w-full mt-2" />
-          </div>
+              }
+            }}
+          />
+          <Separator className="w-full mt-2" />
         </div>
-        <DragIcon width="20px" height="20px" />
       </div>
-    );
-  }
-);
+      <DragIcon width="20px" height="20px" />
+    </div>
+  );
+};
 
-export default ProductEmpty;
+export default Product;
