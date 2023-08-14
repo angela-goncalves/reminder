@@ -14,44 +14,11 @@ export default async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
   const { prompt } = await req.json();
   // Ask OpenAI for a streaming completion given the prompt
-  const listofCatehgories = [
-    "Beverages",
-    "Snacks",
-    "Deli",
-    "Health Foods/Specialty Diets",
-    "Pet Supplies",
-    "Cleaning Products",
-    "Personal Care",
-    "Baby Products",
-    "Paper Goods",
-    "Household Items",
-    "Pharmacy",
-    "Fruits",
-    "Produce",
-    "Dairy & Eggs",
-    "Vegetables",
-    "Grains",
-    "Proteins",
-    "Meat & Poultry",
-    "Seafood",
-    "Bakery",
-    "Cereal & Breakfast Foods",
-    "Fats",
-    "Oils",
-    "Sugars",
-    "Pantry Goods",
-    "Frozen Foods",
-    "Sweets",
-    "Carbohydrates",
-    "Vitamins and Minerals",
-    "Fibers",
-  ];
+
   const response = await openai.createCompletion({
     model: "text-davinci-003",
     stream: true,
-    prompt: `Given the following user input delimited in triple quotes, please classify it into one of the following supermarket shopping list categories: ${listofCatehgories}. If the user input is not a supermarket product say that you didn't find a match for that word.
-User Input:
-"""${prompt}"""`,
+    prompt: `Given the following array delimited in triple quotes, classify the "user_input" into a supermarket category list. If there's a contextually similar category name that already exists in the array, return that "category". If not, return the category name you consider is the right one. Remember return only the category name, no more.  The array:  """${prompt}"""`,
     max_tokens: 200,
     temperature: 0,
     top_p: 1,
