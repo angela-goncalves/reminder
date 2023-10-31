@@ -2,6 +2,8 @@
 
 ## Simply jot down your shopping list, and we'll sort it into categories for you.
 
+https://github.com/angela-goncalves/reminder/assets/66344422/7a31253f-74a2-4699-8659-84b74ac54731
+
 #### App made with [Next.js](https://nextjs.org/) and [Vercel AI SDK](https://sdk.vercel.ai/docs).
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/angela-goncalves/reminder&env=OPENAI_API_KEY&project-name=reminder&repo-name=reminder)
