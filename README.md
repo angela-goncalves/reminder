@@ -27,10 +27,11 @@ pnpm dev
 ```
 
 3. Get your Openai API KEY in [openai](https://openai.com/)
+
 4. Create an .env file and paste your key:
-   ```bash
-   OPENAI_API_KEY=your_api_key_here
-   ```
+```bash
+OPENAI_API_KEY=your_api_key_here
+```
 5. Open [http://localhost:3000](http://localhost:3000) with your browser to try it out.
 
 Hope you like it!
